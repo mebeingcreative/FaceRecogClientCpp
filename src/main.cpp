@@ -33,23 +33,21 @@
 #include <dlib/image_processing/render_face_detections.h>
 #include <dlib/image_processing.h>
 
-using namespace dlib;
-using namespace std;
 
 int main() {
     try {
-        cv::VideoCapture cap(0);
+        cv::VideoCapture cap{0};
         if (!cap.isOpened()) {
-            cerr << "Unable to connect to camera" << endl;
+            std::cerr << "Unable to connect to camera\n";
             return 1;
         }
 
-        image_window win;
+        dlib::image_window win;
 
         // Load face detection and pose estimation models.
-        frontal_face_detector detector = get_frontal_face_detector();
-        shape_predictor pose_model;
-        deserialize("../res/shape_predictor_68_face_landmarks.dat") >> pose_model;
+        auto detector = dlib::get_frontal_face_detector();
+        dlib::shape_predictor pose_model;
+        dlib::deserialize("../res/shape_predictor_68_face_landmarks.dat") >> pose_model;
 
         // Grab and process frames until the main window is closed by the user.
         while (!win.is_closed()) {
@@ -64,14 +62,15 @@ int main() {
             // to reallocate the memory which stores the image as that will make cimg
             // contain dangling pointers.  This basically means you shouldn't modify temp
             // while using cimg.
-            cv_image<bgr_pixel> cimg(temp);
+            dlib::cv_image<dlib::bgr_pixel> cimg(temp);
 
             // Detect faces 
-            std::vector<rectangle> faces = detector(cimg);
+            std::vector<dlib::rectangle> faces = detector(cimg);
             // Find the pose of each face.
-            std::vector<full_object_detection> shapes;
-            for (unsigned long i = 0; i < faces.size(); ++i)
-                shapes.push_back(pose_model(cimg, faces[i]));
+            std::vector<dlib::full_object_detection> shapes;
+            for (const auto & face : faces){
+                shapes.push_back(pose_model(cimg, face));
+            }
 
             // Display it all on the screen
             win.clear_overlay();
@@ -79,14 +78,14 @@ int main() {
             win.add_overlay(render_face_detections(shapes));
         }
     }
-    catch (serialization_error & e) {
-        cout << "You need dlib's default face landmarking model file to run this example." << endl;
-        cout << "You can get it from the following URL: " << endl;
-        cout << "   http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2" << endl;
-        cout << endl << e.what() << endl;
+    catch (dlib::serialization_error & e) {
+        std::cout << "You need dlib's default face landmarking model file to run this example.\n"
+                          "You can get it from the following URL: \n"
+                          "   http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2\n\n"
+                  << e.what() << "\n";
     }
-    catch (exception & e) {
-        cout << e.what() << endl;
+    catch (std::exception & e) {
+        std::cout << e.what() << "\n";
     }
 }
 

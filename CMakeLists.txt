@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(FaceRecogClientCpp)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 find_package(OpenCV REQUIRED)
 include_directories(${OPENCV_INCLUDE_DIR})
