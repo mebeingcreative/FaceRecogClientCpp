@@ -11,7 +11,7 @@ include_directories(src)
 add_subdirectory(libs/dlib)
 
 add_executable(FaceRecogClientCpp
-        src/webcam_face_pose_ex.cpp
+        src/main.cpp
         )
 
 target_link_libraries(FaceRecogClientCpp
