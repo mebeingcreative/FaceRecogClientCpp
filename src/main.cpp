@@ -34,6 +34,10 @@
 #include <dlib/image_processing.h>
 #include "clock.h"
 
+cv::Rect dlibRectangleToOpenCV(dlib::rectangle const & r) {
+  return {cv::Point2i(r.left(), r.top()), cv::Point2i(r.right() + 1, r.bottom() + 1)};
+}
+
 int main() {
     try {
         cv::VideoCapture cap{0};
@@ -43,6 +47,7 @@ int main() {
         }
 
         dlib::image_window win;
+        dlib::image_window face_win;
 
         // Load face detection and pose estimation models.
         auto detector = dlib::get_frontal_face_detector();
@@ -52,19 +57,20 @@ int main() {
         auto clock = speed_clock{std::cout};
 
         // Grab and process frames until the main window is closed by the user.
-        while (!win.is_closed()) {
+        while (!win.is_closed() && !face_win.is_closed()) {
             // Grab a frame
-            cv::Mat temp;
-            if (!cap.read(temp)) {
+            cv::Mat originalImage;
+            if (!cap.read(originalImage)) {
                 break;
             }
+
             // Turn OpenCV's Mat into something dlib can deal with.  Note that this just
             // wraps the Mat object, it doesn't copy anything.  So cimg is only valid as
             // long as temp is valid.  Also don't do anything to temp that would cause it
             // to reallocate the memory which stores the image as that will make cimg
             // contain dangling pointers.  This basically means you shouldn't modify temp
             // while using cimg.
-            dlib::cv_image<dlib::bgr_pixel> cimg(temp);
+            dlib::cv_image<dlib::bgr_pixel> cimg(originalImage);
 
             // Detect faces 
             std::vector<dlib::rectangle> faces = detector(cimg);
@@ -78,6 +84,10 @@ int main() {
             win.clear_overlay();
             win.set_image(cimg);
             win.add_overlay(render_face_detections(shapes));
+
+            dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;
+            extract_image_chips(cimg, get_face_chip_details(shapes), face_chips);
+            face_win.set_image(dlib::tile_images(face_chips));
             clock.step();
         }
     }
