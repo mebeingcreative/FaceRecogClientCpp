@@ -23,6 +23,7 @@ res/shape_predictor_68_face_landmarks.dat
 
 # CMake
 cmake-build-debug/
+cmake-build-release/
 
 # Mongo Explorer plugin:
 .idea/**/mongoSettings.xml
