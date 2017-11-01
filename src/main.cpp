@@ -26,7 +26,7 @@
     instructions.  Note that AVX is the fastest but requires a CPU from at least
     2011.  SSE4 is the next fastest and is supported by most current machines.  
 */
-
+#include <vector>
 #include <dlib/opencv.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <dlib/image_processing/frontal_face_detector.h>
@@ -36,6 +36,19 @@
 
 cv::Rect dlibRectangleToOpenCV(dlib::rectangle const & r) {
   return {cv::Point2i(r.left(), r.top()), cv::Point2i(r.right() + 1, r.bottom() + 1)};
+}
+
+void convert_to_jpeg(cv::Mat & mat, std::vector<uchar> & out) {
+    std::vector<int> params{ cv::IMWRITE_JPEG_QUALITY, 80 };
+    cv::imencode(".jpg", mat, out, params);
+}
+
+void grow_margin(dlib::rectangle & r) {
+    constexpr auto margins = 44L;
+    r.left() -= margins;
+    r.top() -= margins;
+    r.right() += 2 * margins;
+    r.bottom() += 2 * margins;
 }
 
 int main() {
@@ -72,12 +85,17 @@ int main() {
             // while using cimg.
             dlib::cv_image<dlib::bgr_pixel> cimg(originalImage);
 
+
             // Detect faces 
             std::vector<dlib::rectangle> faces = detector(cimg);
             // Find the pose of each face.
             std::vector<dlib::full_object_detection> shapes;
-            for (const auto & face : faces){
+            for (auto & face : faces) {
                 shapes.push_back(pose_model(cimg, face));
+//                cv::Mat face_mat;
+//                originalImage.copyTo(face_mat(dlibRectangleToOpenCV(face)));
+
+                grow_margin(face);
             }
 
             // Display it all on the screen
@@ -88,6 +106,7 @@ int main() {
             dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;
             extract_image_chips(cimg, get_face_chip_details(shapes), face_chips);
             face_win.set_image(dlib::tile_images(face_chips));
+
             clock.step();
         }
     }
