@@ -2,6 +2,8 @@
 #include <QDebug>
 
 
+QOpenGLFunctions * gl;
+
 QViewerGl::QViewerGl(QWidget* parent) :
         QOpenGLWidget(parent)
 {}
@@ -51,40 +53,41 @@ void QViewerGl::initializeGL() {
             }
 
             )glsl";
+    gl = QOpenGLContext::currentContext()->functions();
 
-    initializeOpenGLFunctions();
+    gl->initializeOpenGLFunctions();
 
     GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    gl->glGenBuffers(1, &vbo);
+    gl->glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    gl->glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     initializeProgram(vertexSource, fragmentSource);
 
-    auto const posAttrib = static_cast<GLuint>(glGetAttribLocation(shaderProgram, "position"));
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE,
+    auto const posAttrib = static_cast<GLuint>(gl->glGetAttribLocation(shaderProgram, "position"));
+    gl->glEnableVertexAttribArray(posAttrib);
+    gl->glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE,
                           4 * sizeof(float), 0);
 
-    auto const texAttrib = static_cast<GLuint>(glGetAttribLocation(shaderProgram, "texcoord"));
-    glEnableVertexAttribArray(texAttrib);
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE,
+    auto const texAttrib = static_cast<GLuint>(gl->glGetAttribLocation(shaderProgram, "texcoord"));
+    gl->glEnableVertexAttribArray(texAttrib);
+    gl->glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE,
                           4 * sizeof(float), (void*) (2 * sizeof(float)));
 
-    auto const transUniform = glGetUniformLocation(shaderProgram, "trans");
-    //glUniform2f(transUniform, 1.0f, 1.0f);
+    auto const transUniform = gl->glGetUniformLocation(shaderProgram, "trans");
+    //gl->glUniform2f(transUniform, 1.0f, 1.0f);
     setWidgetAspectRatio(width(), height());
 
-    glGenTextures(1, &tex);
+    gl->glGenTextures(1, &tex);
 
     float const bordercolor[] = {.2f, .2f, .2f, 1.0f};
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, bordercolor);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gl->glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, bordercolor);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    qDebug() << glGetError();
+    qDebug() << gl->glGetError();
 }
 
 void QViewerGl::resizeGL(int width, int height) {
@@ -106,7 +109,7 @@ void QViewerGl::paintGL() {
 void QViewerGl::renderImage() {
     drawMutex.lock();
 
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    gl->glDrawArrays(GL_TRIANGLES, 0, 6);
 
     drawMutex.unlock();
 }
@@ -115,22 +118,22 @@ void QViewerGl::initializeProgram(char const * vertexSource, char const * fragme
     auto const vertexShader = compileShader(vertexSource, GL_VERTEX_SHADER);
     auto const fragmentShader = compileShader(fragmentSource, GL_FRAGMENT_SHADER);
 
-    shaderProgram = static_cast<GLuint>(glCreateProgram());
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
+    shaderProgram = static_cast<GLuint>(gl->glCreateProgram());
+    gl->glAttachShader(shaderProgram, vertexShader);
+    gl->glAttachShader(shaderProgram, fragmentShader);
+    gl->glLinkProgram(shaderProgram);
+    gl->glUseProgram(shaderProgram);
 }
 
 GLuint QViewerGl::compileShader(char const* source, GLenum const type) {
-    auto shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, nullptr);
-    glCompileShader(shader);
+    auto shader = gl->glCreateShader(type);
+    gl->glShaderSource(shader, 1, &source, nullptr);
+    gl->glCompileShader(shader);
     GLint status;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    gl->glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     if (status != GL_TRUE) {
         char buffer[512];
-        glGetShaderInfoLog(shader, 512, nullptr, buffer);
+        gl->glGetShaderInfoLog(shader, 512, nullptr, buffer);
         qDebug() << buffer;
     }
     return shader;
@@ -148,13 +151,13 @@ void QViewerGl::setWidgetAspectRatio(int width, int height){
 }
 
 void QViewerGl::recalculateAspect() {
-    auto const transUniform = glGetUniformLocation(shaderProgram, "trans");
+    auto const transUniform = gl->glGetUniformLocation(shaderProgram, "trans");
     if (widgetAspectRatio < camAspectRatio){
-        glUniform2f(transUniform,
+        gl->glUniform2f(transUniform,
                     1.0f,
                     widgetAspectRatio / camAspectRatio);
     } else {
-        glUniform2f(transUniform,
+        gl->glUniform2f(transUniform,
                     camAspectRatio / widgetAspectRatio,
                     1.0f);
     }
@@ -163,9 +166,9 @@ void QViewerGl::recalculateAspect() {
 bool QViewerGl::showImage(cv::Mat const & image) {
     drawMutex.lock();
     if (image.channels() == 3) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0, GL_BGR,
+        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0, GL_BGR,
                      GL_UNSIGNED_BYTE, image.data);
-        glBindTexture(GL_TEXTURE_2D, tex);
+        gl->glBindTexture(GL_TEXTURE_2D, tex);
         setCamAspectRatio(image.cols, image.rows);
     } else {
         qDebug() << "Camera mode not supported: " << image.channels();
