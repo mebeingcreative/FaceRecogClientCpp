@@ -11,7 +11,8 @@ class face_recog_api : public QObject {
 Q_OBJECT
 public:
     explicit face_recog_api(std::string const & host, QObject *parent = nullptr);
-    void request_embedding(QByteArray const & image_buffer);
+    void request_embedding(QByteArray const & jpg_buffer);
+    void track(QByteArray const & jpg_buffer, QByteArray embedding);
 private:
     QString host;
     QNetworkAccessManager networkManager{};
