@@ -28,6 +28,7 @@ void grow_margin(dlib::rectangle & r) {
 
 
 QtGLWebcamDemo::QtGLWebcamDemo(QWidget* parent) :
+        api{"http://localhost:5000"},
         QMainWindow(parent) {
     ui = std::make_unique<Ui::QtGLWebcamDemo>();
     ui->setupUi(this);
@@ -80,7 +81,8 @@ void QtGLWebcamDemo::timerEvent(QTimerEvent*) {
 
         grow_margin(face);
         convert_to_jpeg(image, jpgImage);
-
+        auto qarray = QByteArray(reinterpret_cast<char *>(jpgImage.data()), jpgImage.size());
+        api.request_embedding(qarray);
     }
 
     /*dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;

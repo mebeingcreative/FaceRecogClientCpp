@@ -10,6 +10,7 @@
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing/render_face_detections.h>
 #include <dlib/image_processing.h>
+#include "face_recog_api/face_recog_api.h"
 
 
 namespace Ui {
@@ -34,6 +35,7 @@ private:
     cv::VideoCapture capture{};
     dlib::frontal_face_detector detector{};
     dlib::shape_predictor pose_model{};
+    face_recog_api api;
 };
 
 #endif // QTGLWEBCAMDEMO_H

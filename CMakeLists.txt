@@ -6,7 +6,10 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS
+        Widgets
+        Network
+        REQUIRED)
 find_package(OpenCV REQUIRED)
 
 add_subdirectory(libs/dlib)
@@ -16,6 +19,7 @@ add_executable(FaceRecogClientCpp
         src/qtglwebcamdemo.cpp
         src/qtglwebcamdemo.ui
         src/qviewergl.cpp
+        src/face_recog_api/face_recog_api.cpp
         )
 
 target_link_libraries(FaceRecogClientCpp
@@ -23,6 +27,7 @@ target_link_libraries(FaceRecogClientCpp
         ${OpenCV_LIBS}
         dlib::dlib
         Qt5::Widgets
+        Qt5::Network
         )
 
 target_include_directories(FaceRecogClientCpp
