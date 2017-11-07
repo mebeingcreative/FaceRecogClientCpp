@@ -43,8 +43,8 @@ void convert_to_jpeg(cv::Mat & mat, std::vector<uchar> & out) {
     cv::imencode(".jpg", mat, out, params);
 }
 
+template<int margins = 44L>
 void grow_margin(dlib::rectangle & r) {
-    constexpr auto margins = 44L;
     r.left() -= margins;
     r.top() -= margins;
     r.right() += 2 * margins;

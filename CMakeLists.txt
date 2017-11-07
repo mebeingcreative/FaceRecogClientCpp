@@ -13,6 +13,7 @@ add_executable(FaceRecogClientCpp
         )
 
 target_link_libraries(FaceRecogClientCpp
+        PRIVATE
         ${OpenCV_LIBS}
         dlib::dlib
         )
