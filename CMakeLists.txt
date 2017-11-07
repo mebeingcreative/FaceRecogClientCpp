@@ -2,20 +2,27 @@ cmake_minimum_required(VERSION 3.8)
 project(FaceRecogClientCpp CXX)
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(OpenCV REQUIRED)
 
 add_subdirectory(libs/dlib)
 
 add_executable(FaceRecogClientCpp
         src/main.cpp
+        src/qtglwebcamdemo.cpp
+        src/qtglwebcamdemo.ui
+        src/qviewergl.cpp
         )
 
 target_link_libraries(FaceRecogClientCpp
         PRIVATE
         ${OpenCV_LIBS}
         dlib::dlib
+        Qt5::Widgets
         )
 
 target_include_directories(FaceRecogClientCpp
