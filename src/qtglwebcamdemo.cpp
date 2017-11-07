@@ -10,9 +10,12 @@ cv::Rect dlibRectangleToOpenCV(dlib::rectangle const & r) {
     return {cv::Point2i(r.left(), r.top()), cv::Point2i(r.right() + 1, r.bottom() + 1)};
 }
 
-void convert_to_jpeg(cv::Mat & mat, std::vector<uchar> & out) {
+void convert_to_jpeg(cv::Mat & mat, std::vector<unsigned char> & out) {
     std::vector<int> params{ cv::IMWRITE_JPEG_QUALITY, 80 };
+    out.clear();
     cv::imencode(".jpg", mat, out, params);
+    std::ofstream outfile ("test.jpg", std::ofstream::binary);
+    outfile.write(reinterpret_cast<char *>(out.data()), out.size());
 }
 
 template<int margins = 44L>
@@ -68,13 +71,16 @@ void QtGLWebcamDemo::timerEvent(QTimerEvent*) {
     // Detect faces
     std::vector<dlib::rectangle> faces = detector(cimg);
     // Find the pose of each face.
-    std::vector<dlib::full_object_detection> shapes;
+    auto shapes = std::vector<dlib::full_object_detection>{};
+    auto jpgImage = std::vector<unsigned char>{};
     for (auto & face : faces) {
         shapes.push_back(pose_model(cimg, face));
 //                cv::Mat face_mat;
 //                originalImage.copyTo(face_mat(dlibRectangleToOpenCV(face)));
 
         grow_margin(face);
+        convert_to_jpeg(image, jpgImage);
+
     }
 
     /*dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;

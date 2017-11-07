@@ -34,7 +34,6 @@ private:
     cv::VideoCapture capture{};
     dlib::frontal_face_detector detector{};
     dlib::shape_predictor pose_model{};
-    dlib::image_window face_win{};
 };
 
 #endif // QTGLWEBCAMDEMO_H
