@@ -14,7 +14,7 @@ face_recog_api::face_recog_api(std::string const & host, QObject *parent):
 //            });
 }
 
-void face_recog_api::request_embedding(QByteArray const & jpg_buffer) {
+void face_recog_api::request_embedding(QByteArray const & jpg_buffer, dlib::rectangle const position) {
     auto multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     QHttpPart imagePart{};
@@ -33,10 +33,10 @@ void face_recog_api::request_embedding(QByteArray const & jpg_buffer) {
     multiPart->setParent(reply); // delete the multiPart with the reply
 
     connect(reply, &QNetworkReply::finished,
-            [this, reply, jpg_buffer](){
+            [this, reply, jpg_buffer, position](){
                 QByteArray embedding = reply->readAll();
                 qDebug() << QString(embedding);
-                track(jpg_buffer, embedding);
+                track(jpg_buffer, embedding, position);
             });
 
     connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
@@ -45,12 +45,22 @@ void face_recog_api::request_embedding(QByteArray const & jpg_buffer) {
             });
 }
 
-void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray embedding) {
+void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & embedding, dlib::rectangle const position) {
     auto multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     auto jsonDoc = QJsonDocument::fromJson(embedding);
-    auto jsonObj = jsonDoc.object();
-    jsonObj.insert("location", "cam2");
+    auto jsonObj = QJsonObject{
+            {"location", "cam2"},
+            {"positions", QJsonArray{
+                    QJsonObject{
+                            {"width", (int) position.width()},
+                            {"top", (int) position.top()},
+                            {"height", (int) position.height()},
+                            {"bottom", (int) position.bottom()}
+                    }
+            }},
+            {"embeddings", jsonDoc.object()["embedding"].toArray()}
+    };
     jsonDoc.setObject(jsonObj);
 
     QHttpPart jsonPart{};

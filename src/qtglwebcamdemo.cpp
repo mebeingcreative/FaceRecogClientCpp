@@ -82,7 +82,7 @@ void QtGLWebcamDemo::timerEvent(QTimerEvent*) {
         grow_margin(face);
         convert_to_jpeg(image, jpgImage);
         auto qarray = QByteArray(reinterpret_cast<char *>(jpgImage.data()), jpgImage.size());
-        api.request_embedding(qarray);
+        api.request_embedding(qarray, face);
     }
 
     /*dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;
