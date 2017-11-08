@@ -8,8 +8,7 @@
 #include <mutex>
 
 class QViewerGl :
-        public QOpenGLWidget,
-        protected QOpenGLFunctions {
+        public QOpenGLWidget {
 Q_OBJECT
 public:
     explicit QViewerGl(QWidget* parent = 0);

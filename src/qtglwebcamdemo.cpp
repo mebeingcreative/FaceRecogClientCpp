@@ -44,6 +44,7 @@ QtGLWebcamDemo::QtGLWebcamDemo(QWidget* parent) :
         QMainWindow(parent) {
     ui = std::make_unique<Ui::QtGLWebcamDemo>();
     ui->setupUi(this);
+    on_actionStart_triggered();
 }
 
 QtGLWebcamDemo::~QtGLWebcamDemo() = default;
@@ -62,7 +63,7 @@ void QtGLWebcamDemo::on_actionStart_triggered() {
         qCritical() << "You need dlib's default face landmarking model file to run this example.\n"
                 "You can get it from the following URL: \n"
                 "   http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2\n\n"
-                  << e.what() << "\n";
+                    << e.what() << "\n";
     }
 
     startTimer(0);
