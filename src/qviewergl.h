@@ -13,6 +13,7 @@ class QViewerGl :
 Q_OBJECT
 public:
     explicit QViewerGl(QWidget* parent = 0);
+    ~QViewerGl();
 
 signals:
     void imageSizeChanged(int outW, int outH); /// Used to resize the image outside the widget

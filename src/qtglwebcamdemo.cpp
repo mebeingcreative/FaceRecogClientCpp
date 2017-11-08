@@ -6,19 +6,31 @@
 #include "ui_qtglwebcamdemo.h"
 
 
-cv::Rect dlibRectangleToOpenCV(dlib::rectangle const & r) {
-    return {cv::Point2i(r.left(), r.top()), cv::Point2i(r.right() + 1, r.bottom() + 1)};
+cv::Mat get_roi_from_rectangle(cv::Mat const & mat, dlib::rectangle const & r) {
+    auto const roi = cv::Rect{
+            cv::Point2i(
+                    std::max(0, static_cast<int>(r.left())),
+                    std::max(0, static_cast<int>(r.top()))),
+            cv::Point2i(
+                    std::min(mat.cols - 1, static_cast<int>(r.right() + 1)),
+                    std::min(mat.rows - 1 , static_cast<int>(r.bottom() + 1)))
+    };
+    return mat(roi);
 }
 
 void convert_to_jpeg(cv::Mat & mat, std::vector<unsigned char> & out) {
     std::vector<int> params{ cv::IMWRITE_JPEG_QUALITY, 80 };
     out.clear();
     cv::imencode(".jpg", mat, out, params);
-    std::ofstream outfile ("test.jpg", std::ofstream::binary);
-    outfile.write(reinterpret_cast<char *>(out.data()), out.size());
+    //std::ofstream outfile ("test.jpg", std::ofstream::binary);
+    //outfile.write(reinterpret_cast<char *>(out.data()), out.size());
 }
 
-template<int margins = 44L>
+QByteArray convert_to_qbytearray(std::vector<unsigned char> const & vector){
+    return {reinterpret_cast<char const *>(vector.data()), static_cast<int const>(vector.size())};
+}
+
+template<int margins = 0L>
 void grow_margin(dlib::rectangle & r) {
     r.left() -= margins;
     r.top() -= margins;
@@ -68,22 +80,23 @@ void QtGLWebcamDemo::timerEvent(QTimerEvent*) {
     // while using cimg.
     dlib::cv_image<dlib::bgr_pixel> cimg(image);
 
-
-    // Detect faces
     std::vector<dlib::rectangle> faces = detector(cimg);
-    // Find the pose of each face.
+
     auto shapes = std::vector<dlib::full_object_detection>{};
     auto jpgImage = std::vector<unsigned char>{};
+
     for (auto & face : faces) {
         shapes.push_back(pose_model(cimg, face));
 //                cv::Mat face_mat;
 //                originalImage.copyTo(face_mat(dlibRectangleToOpenCV(face)));
 
         grow_margin(face);
-        convert_to_jpeg(image, jpgImage);
-        auto qarray = QByteArray(reinterpret_cast<char *>(jpgImage.data()), jpgImage.size());
-        api.request_embedding(qarray, face);
+        auto face_roi = get_roi_from_rectangle(image, face);
+        convert_to_jpeg(face_roi, jpgImage);
     }
+
+    auto qarray = convert_to_qbytearray(jpgImage);
+    //api.request_embedding(qarray, face);
 
     /*dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;
     extract_image_chips(cimg, get_face_chip_details(shapes), face_chips);

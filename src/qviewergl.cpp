@@ -8,16 +8,15 @@ QViewerGl::QViewerGl(QWidget* parent) :
         QOpenGLWidget(parent)
 {}
 
+QViewerGl::~QViewerGl() = default;
+
 void QViewerGl::initializeGL() {
     float const vertices[] = {
             // Position      Texture
-            -1.0f, 1.0f, 1.0f, 0.0f, // Top-left
             1.0f, 1.0f, 0.0f, 0.0f, // Top-right
             1.0f, -1.0f, 0.0f, 1.0f, // Bottom-right
-
-            1.0f, -1.0f, 0.0f, 1.0f, // Bottom-right
+            -1.0f, 1.0f, 1.0f, 0.0f, // Top-left
             -1.0f, -1.0f, 1.0f, 1.0f, // Bottom-left
-            -1.0f, 1.0f, 1.0f, 0.0f  // Top-left
     };
 
     char const* vertexSource =
@@ -109,7 +108,7 @@ void QViewerGl::paintGL() {
 void QViewerGl::renderImage() {
     drawMutex.lock();
 
-    gl->glDrawArrays(GL_TRIANGLES, 0, 6);
+    gl->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     drawMutex.unlock();
 }
@@ -171,7 +170,7 @@ bool QViewerGl::showImage(cv::Mat const & image) {
         gl->glBindTexture(GL_TEXTURE_2D, tex);
         setCamAspectRatio(image.cols, image.rows);
     } else {
-        qDebug() << "Camera mode not supported: " << image.channels();
+        qDebug() << "Camera mode with "  << image.channels() << " channels not supported: ";
         drawMutex.unlock();
         return false;
     }
