@@ -16,7 +16,7 @@ face_recog_api::face_recog_api(std::string const & host, QObject *parent):
 //            });
 }
 
-void face_recog_api::request_embedding(QByteArray const & jpg_buffer, dlib::rectangle const position) {
+void face_recog_api::request_embedding(QByteArray const & jpg_buffer, QRect const position) {
     auto multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     QHttpPart imagePart{};
@@ -47,7 +47,7 @@ void face_recog_api::request_embedding(QByteArray const & jpg_buffer, dlib::rect
             });
 }
 
-void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & embedding, dlib::rectangle const position) {
+void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & embedding, QRect const position) {
     auto multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     auto jsonDoc = QJsonDocument::fromJson(embedding);
@@ -55,10 +55,10 @@ void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & emb
             {"location", "cam2"},
             {"positions", QJsonArray{
                     QJsonObject{
-                            {"top", (int) position.top()},
-                            {"left", (int) position.left()},
-                            {"width", (int) position.width()},
-                            {"height", (int) position.height()}
+                            {"top", position.top()},
+                            {"left", position.left()},
+                            {"width", position.width()},
+                            {"height", position.height()}
                     }
             }},
             {"embeddings", jsonDoc.object()["embedding"].toArray()}

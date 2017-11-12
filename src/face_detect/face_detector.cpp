@@ -4,9 +4,11 @@
 
 #include "face_detector.h"
 #include <QDebug>
+#include <algorithm>
+#include <iterator>
 
-inline cv::Mat get_roi_from_rectangle(cv::Mat const & mat, dlib::rectangle const & r) {
-    auto const roi = cv::Rect{
+inline cv::Rect transform_to_rect(cv::Mat const & mat, dlib::rectangle const & r) {
+    return {
             cv::Point2i(
                     std::max(0, static_cast<int>(r.left())),
                     std::max(0, static_cast<int>(r.top()))),
@@ -14,7 +16,11 @@ inline cv::Mat get_roi_from_rectangle(cv::Mat const & mat, dlib::rectangle const
                     std::min(mat.cols - 1, static_cast<int>(r.right() + 1)),
                     std::min(mat.rows - 1 , static_cast<int>(r.bottom() + 1)))
     };
-    return mat(roi);
+}
+
+inline QRect transform_to_qrect(dlib::rectangle const & r){
+    return {static_cast<int>(r.left()), static_cast<int>(r.top()),
+            static_cast<int>(r.width()), static_cast<int>(r.height())};
 }
 
 template<int margins = 0L>
@@ -38,7 +44,7 @@ void face_detector::initialize() {
     }
 }
 
-void face_detector::detect(cv::Mat & image){
+QVector<QRect> face_detector::detect(cv::Mat & image){
     // Turn OpenCV's Mat into something dlib can deal with.  Note that this just
     // wraps the Mat object, it doesn't copy anything.  So cimg is only valid as
     // long as temp is valid.  Also don't do anything to temp that would cause it
@@ -58,8 +64,8 @@ void face_detector::detect(cv::Mat & image){
 //                originalImage.copyTo(face_mat(dlibRectangleToOpenCV(face)));
 
         grow_margin(face);
-        auto face_roi = get_roi_from_rectangle(image, face);
-      //  convert_to_jpeg(face_roi, jpgImage);
+        auto face_rect = transform_to_rect(image, face);
+      //  convert_to_jpeg(image(face_rect), jpgImage);
     }
 
     //auto qarray = convert_to_qbytearray(jpgImage);
@@ -68,4 +74,8 @@ void face_detector::detect(cv::Mat & image){
     /*dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;
     extract_image_chips(cimg, get_face_chip_details(shapes), face_chips);
     face_win.set_image(dlib::tile_images(face_chips));*/
+
+    QVector<QRect> out;
+    std::transform(faces.cbegin(), faces.cend(), std::back_inserter(out), transform_to_qrect);
+    return out;
 }

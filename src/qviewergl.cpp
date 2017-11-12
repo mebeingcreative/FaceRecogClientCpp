@@ -37,14 +37,14 @@ QViewerGl::~QViewerGl() = default;
 
 void QViewerGl::paintEvent(QPaintEvent * event) {
     capture.read(imageBGR);
-
-    detector.detect(imageBGR);
+    auto faces = detector.detect(imageBGR);
+    cvtColor(imageBGR, imageRGBA, CV_BGR2RGBA);
 
     QPainter painter{this};
     auto const origin = QPoint{0,0};
-    cvtColor(imageBGR, imageRGBA, CV_BGR2RGBA);
     qimage = QImage{imageRGBA.data, imageRGBA.cols, imageRGBA.rows, QImage::Format_RGBA8888_Premultiplied};
     painter.drawImage(origin, qimage);
+    painter.drawRects(faces);
 }
 
 QSize QViewerGl::minimumSizeHint() const {

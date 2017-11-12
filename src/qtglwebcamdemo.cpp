@@ -1,7 +1,5 @@
 #include <QDebug>
 
-#include <dlib/image_processing/render_face_detections.h>
-#include <dlib/image_processing.h>
 #include "qtglwebcamdemo.h"
 #include "ui_qtglwebcamdemo.h"
 

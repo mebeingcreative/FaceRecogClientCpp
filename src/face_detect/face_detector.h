@@ -9,10 +9,12 @@
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing/render_face_detections.h>
 #include <dlib/image_processing/shape_predictor.h>
+#include <QVector>
+#include <QRect>
 
 struct face_detector{
     void initialize();
-    void detect(cv::Mat & image);
+    QVector<QRect> detect(cv::Mat & image);
 private:
     dlib::frontal_face_detector detector{};
     dlib::shape_predictor pose_model{};
