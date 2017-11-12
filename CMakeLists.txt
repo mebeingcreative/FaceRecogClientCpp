@@ -17,10 +17,11 @@ add_subdirectory(libs/dlib)
 
 add_executable(FaceRecogClientCpp
         src/main.cpp
+        src/face_recog_api/face_recog_api.cpp
+        src/face_detect/face_detector.cpp
         src/qtglwebcamdemo.cpp
         src/qtglwebcamdemo.ui
         src/qviewergl.cpp
-        src/face_recog_api/face_recog_api.cpp
         )
 
 target_link_libraries(FaceRecogClientCpp

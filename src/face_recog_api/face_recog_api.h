@@ -8,7 +8,8 @@
 #include <string>
 #include <dlib/geometry/rectangle.h>
 
-class face_recog_api : public QObject {
+class face_recog_api
+        : public QObject {
 Q_OBJECT
 public:
     explicit face_recog_api(std::string const & host, QObject *parent = nullptr);

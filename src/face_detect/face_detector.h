@@ -5,8 +5,17 @@
 #ifndef FACERECOGCLIENTCPP_FACE_DETECTOR_H
 #define FACERECOGCLIENTCPP_FACE_DETECTOR_H
 
-class face_detector{
+#include <dlib/opencv.h>
+#include <dlib/image_processing/frontal_face_detector.h>
+#include <dlib/image_processing/render_face_detections.h>
+#include <dlib/image_processing/shape_predictor.h>
+
+struct face_detector{
     void initialize();
+    void detect(cv::Mat & image);
+private:
+    dlib::frontal_face_detector detector{};
+    dlib::shape_predictor pose_model{};
 };
 
 #endif //FACERECOGCLIENTCPP_FACE_DETECTOR_H

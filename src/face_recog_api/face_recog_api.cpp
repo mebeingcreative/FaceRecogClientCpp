@@ -4,6 +4,8 @@
 #include <QtNetwork>
 #include <QDebug>
 
+#include "face_recog_api.moc"
+
 face_recog_api::face_recog_api(std::string const & host, QObject *parent):
         host{QString::fromStdString(host)},
         QObject(parent){
@@ -94,5 +96,3 @@ void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & emb
                 qCritical() << "request failed: " << code;
             });
 }
-
-#include "face_recog_api.moc"

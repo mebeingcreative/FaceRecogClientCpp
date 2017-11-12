@@ -6,10 +6,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <dlib/opencv.h>
-#include <dlib/image_processing/frontal_face_detector.h>
-#include <dlib/image_processing/render_face_detections.h>
-#include <dlib/image_processing.h>
+#include "face_detect/face_detector.h"
 
 class QViewerGl :
         public QWidget {
@@ -21,10 +18,8 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     QSize minimumSizeHint() const override;
 private:
-    void detect(cv::Mat & image);
     cv::VideoCapture capture{};
-    dlib::frontal_face_detector detector{};
-    dlib::shape_predictor pose_model{};
+    face_detector detector{};
     cv::Mat imageBGR;
     cv::Mat imageRGBA;
     QImage qimage;
