@@ -1,181 +1,116 @@
 #include "qviewergl.h"
 #include <QDebug>
+#include <dlib/image_processing/render_face_detections.h>
+#include <dlib/image_processing.h>
 
+cv::Mat get_roi_from_rectangle(cv::Mat const & mat, dlib::rectangle const & r) {
+    auto const roi = cv::Rect{
+            cv::Point2i(
+                    std::max(0, static_cast<int>(r.left())),
+                    std::max(0, static_cast<int>(r.top()))),
+            cv::Point2i(
+                    std::min(mat.cols - 1, static_cast<int>(r.right() + 1)),
+                    std::min(mat.rows - 1 , static_cast<int>(r.bottom() + 1)))
+    };
+    return mat(roi);
+}
 
-QOpenGLFunctions * gl;
+void convert_to_jpeg(cv::Mat & mat, std::vector<unsigned char> & out) {
+    std::vector<int> params{ cv::IMWRITE_JPEG_QUALITY, 80 };
+    out.clear();
+    cv::imencode(".jpg", mat, out, params);
+    //std::ofstream outfile ("test.jpg", std::ofstream::binary);
+    //outfile.write(reinterpret_cast<char *>(out.data()), out.size());
+}
+
+QByteArray convert_to_qbytearray(std::vector<unsigned char> const & vector){
+    return {reinterpret_cast<char const *>(vector.data()), static_cast<int const>(vector.size())};
+}
+
+template<int margins = 0L>
+void grow_margin(dlib::rectangle & r) {
+    r.left() -= margins;
+    r.top() -= margins;
+    r.right() += 2 * margins;
+    r.bottom() += 2 * margins;
+}
+
 
 QViewerGl::QViewerGl(QWidget* parent) :
-        QOpenGLWidget(parent)
-{}
+        QWidget{parent}
+{
+    if (!capture.isOpened() && !capture.open(0)) {
+        qCritical() << "Failed to open camera";
+        return;
+    }
+
+    cameraSize = QSize{
+            static_cast<int>(capture.get(CV_CAP_PROP_FRAME_WIDTH)),
+            static_cast<int>(capture.get(CV_CAP_PROP_FRAME_WIDTH))
+    };
+
+    try {
+        detector = dlib::get_frontal_face_detector();
+        dlib::shape_predictor pose_model;
+        dlib::deserialize("../res/shape_predictor_68_face_landmarks.dat") >> pose_model;
+    } catch (dlib::serialization_error & e) {
+        qCritical() << "You need dlib's default face landmarking model file to run this example.\n"
+                "You can get it from the following URL: \n"
+                "   http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2\n\n"
+                    << e.what() << "\n";
+    }
+
+    timer = new QTimer{this};
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    timer->start(20);
+}
 
 QViewerGl::~QViewerGl() = default;
 
-void QViewerGl::initializeGL() {
-    float const vertices[] = {
-            // Position      Texture
-            1.0f, 1.0f, 0.0f, 0.0f, // Top-right
-            1.0f, -1.0f, 0.0f, 1.0f, // Bottom-right
-            -1.0f, 1.0f, 1.0f, 0.0f, // Top-left
-            -1.0f, -1.0f, 1.0f, 1.0f, // Bottom-left
-    };
+void QViewerGl::paintEvent(QPaintEvent * event) {
+    capture.read(imageBGR);
 
-    char const* vertexSource =
-            R"glsl(
-            #version 130
+    //detect(image);
 
-            in vec2 position;
-            in vec2 texcoord;
-
-            out vec2 Texcoord;
-
-            uniform vec2 trans;
-
-            void main(){
-                Texcoord = texcoord;
-                gl_Position = vec4(trans * position, 0.0, 1.0);
-            }
-
-            )glsl";
-
-    char const* fragmentSource =
-            R"glsl(
-            #version 130
-
-            in vec2 Texcoord;
-
-            out vec4 outColor;
-
-            uniform sampler2D tex;
-
-            void main(){
-                outColor = texture(tex, Texcoord);
-            }
-
-            )glsl";
-    gl = QOpenGLContext::currentContext()->functions();
-
-    gl->initializeOpenGLFunctions();
-
-    GLuint vbo;
-    gl->glGenBuffers(1, &vbo);
-    gl->glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    gl->glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    initializeProgram(vertexSource, fragmentSource);
-
-    auto const posAttrib = static_cast<GLuint>(gl->glGetAttribLocation(shaderProgram, "position"));
-    gl->glEnableVertexAttribArray(posAttrib);
-    gl->glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE,
-                          4 * sizeof(float), 0);
-
-    auto const texAttrib = static_cast<GLuint>(gl->glGetAttribLocation(shaderProgram, "texcoord"));
-    gl->glEnableVertexAttribArray(texAttrib);
-    gl->glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE,
-                          4 * sizeof(float), (void*) (2 * sizeof(float)));
-
-    auto const transUniform = gl->glGetUniformLocation(shaderProgram, "trans");
-    //gl->glUniform2f(transUniform, 1.0f, 1.0f);
-    setWidgetAspectRatio(width(), height());
-
-    gl->glGenTextures(1, &tex);
-
-    float const bordercolor[] = {.2f, .2f, .2f, 1.0f};
-    gl->glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, bordercolor);
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    qDebug() << gl->glGetError();
+    QPainter painter{this};
+    auto const origin = QPoint{0,0};
+    cvtColor(imageBGR, imageRGBA, CV_BGR2RGBA);
+    qimage = QImage{imageRGBA.data, imageRGBA.cols, imageRGBA.rows, QImage::Format_RGBA8888_Premultiplied};
+    painter.drawImage(origin, qimage);
 }
 
-void QViewerGl::resizeGL(int width, int height) {
-    setWidgetAspectRatio(width, height);
-    emit imageSizeChanged(width, height);
-    updateScene();
+QSize QViewerGl::minimumSizeHint() const {
+    return cameraSize;
 }
 
-void QViewerGl::updateScene() {
-    if (isVisible()) {
-        update();
-    }
-}
+void QViewerGl::detect(cv::Mat & image){
+    // Turn OpenCV's Mat into something dlib can deal with.  Note that this just
+    // wraps the Mat object, it doesn't copy anything.  So cimg is only valid as
+    // long as temp is valid.  Also don't do anything to temp that would cause it
+    // to reallocate the memory which stores the image as that will make cimg
+    // contain dangling pointers.  This basically means you shouldn't modify temp
+    // while using cimg.
+    dlib::cv_image<dlib::bgr_pixel> cimg(image);
 
-void QViewerGl::paintGL() {
-    renderImage();
-}
+    std::vector<dlib::rectangle> faces = detector(cimg);
 
-void QViewerGl::renderImage() {
-    drawMutex.lock();
+    auto shapes = std::vector<dlib::full_object_detection>{};
+    auto jpgImage = std::vector<unsigned char>{};
 
-    gl->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    for (auto & face : faces) {
+        shapes.push_back(pose_model(cimg, face));
+//                cv::Mat face_mat;
+//                originalImage.copyTo(face_mat(dlibRectangleToOpenCV(face)));
 
-    drawMutex.unlock();
-}
-
-void QViewerGl::initializeProgram(char const * vertexSource, char const * fragmentSource){
-    auto const vertexShader = compileShader(vertexSource, GL_VERTEX_SHADER);
-    auto const fragmentShader = compileShader(fragmentSource, GL_FRAGMENT_SHADER);
-
-    shaderProgram = static_cast<GLuint>(gl->glCreateProgram());
-    gl->glAttachShader(shaderProgram, vertexShader);
-    gl->glAttachShader(shaderProgram, fragmentShader);
-    gl->glLinkProgram(shaderProgram);
-    gl->glUseProgram(shaderProgram);
-}
-
-GLuint QViewerGl::compileShader(char const* source, GLenum const type) {
-    auto shader = gl->glCreateShader(type);
-    gl->glShaderSource(shader, 1, &source, nullptr);
-    gl->glCompileShader(shader);
-    GLint status;
-    gl->glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if (status != GL_TRUE) {
-        char buffer[512];
-        gl->glGetShaderInfoLog(shader, 512, nullptr, buffer);
-        qDebug() << buffer;
-    }
-    return shader;
-}
-
-
-void QViewerGl::setCamAspectRatio(int width, int height){
-    camAspectRatio = (float) width / (float) height;
-    recalculateAspect();
-}
-
-void QViewerGl::setWidgetAspectRatio(int width, int height){
-    widgetAspectRatio = (float) width / (float) height;
-    recalculateAspect();
-}
-
-void QViewerGl::recalculateAspect() {
-    auto const transUniform = gl->glGetUniformLocation(shaderProgram, "trans");
-    if (widgetAspectRatio < camAspectRatio){
-        gl->glUniform2f(transUniform,
-                    1.0f,
-                    widgetAspectRatio / camAspectRatio);
-    } else {
-        gl->glUniform2f(transUniform,
-                    camAspectRatio / widgetAspectRatio,
-                    1.0f);
-    }
-}
-
-bool QViewerGl::showImage(cv::Mat const & image) {
-    drawMutex.lock();
-    if (image.channels() == 3) {
-        gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0, GL_BGR,
-                     GL_UNSIGNED_BYTE, image.data);
-        gl->glBindTexture(GL_TEXTURE_2D, tex);
-        setCamAspectRatio(image.cols, image.rows);
-    } else {
-        qDebug() << "Camera mode with "  << image.channels() << " channels not supported: ";
-        drawMutex.unlock();
-        return false;
+        grow_margin(face);
+        auto face_roi = get_roi_from_rectangle(image, face);
+        convert_to_jpeg(face_roi, jpgImage);
     }
 
-    updateScene();
-    drawMutex.unlock();
-    return true;
+    auto qarray = convert_to_qbytearray(jpgImage);
+    //api.request_embedding(qarray, face);
+
+    /*dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;
+    extract_image_chips(cimg, get_face_chip_details(shapes), face_chips);
+    face_win.set_image(dlib::tile_images(face_chips));*/
 }
