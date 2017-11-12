@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
     try {
         QApplication a(argc, argv);
         QtGLWebcamDemo w;
-        w.show();
+        w.showMaximized();
 
         res = a.exec();
     } catch (QException & e) {

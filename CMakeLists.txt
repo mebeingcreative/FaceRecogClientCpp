@@ -6,11 +6,12 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
+find_package(OpenCV REQUIRED)
 find_package(Qt5 COMPONENTS
         Widgets
         Network
+        WebEngineWidgets
         REQUIRED)
-find_package(OpenCV REQUIRED)
 
 add_subdirectory(libs/dlib)
 
@@ -28,6 +29,7 @@ target_link_libraries(FaceRecogClientCpp
         dlib::dlib
         Qt5::Widgets
         Qt5::Network
+        Qt5::WebEngineWidgets
         )
 
 target_include_directories(FaceRecogClientCpp

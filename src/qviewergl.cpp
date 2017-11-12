@@ -70,7 +70,7 @@ QViewerGl::~QViewerGl() = default;
 void QViewerGl::paintEvent(QPaintEvent * event) {
     capture.read(imageBGR);
 
-    //detect(image);
+    detect(imageBGR);
 
     QPainter painter{this};
     auto const origin = QPoint{0,0};
