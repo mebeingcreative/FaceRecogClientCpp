@@ -7,6 +7,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "face_detect/face_detector.h"
+#include "face_recog_api/face_recog_service.h"
 
 class QViewerGl :
         public QWidget {
@@ -25,6 +26,7 @@ private:
     QImage qimage;
     QTimer* timer;
     QSize cameraSize;
+    face_recog_service recog_service;
 };
 
 #endif // CQTOPENCVVIEWERGL_H

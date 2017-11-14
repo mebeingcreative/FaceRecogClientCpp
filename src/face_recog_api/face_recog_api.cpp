@@ -9,14 +9,9 @@
 face_recog_api::face_recog_api(std::string const & host, QObject *parent):
         host{QString::fromStdString(host)},
         QObject(parent){
-
-//    connect(&networkManager, &QNetworkAccessManager::finished,
-//            [](auto * const response){
-//                std::cout << "start" << QString(response->readAll()).toStdString() << "end";
-//            });
 }
 
-void face_recog_api::request_embedding(QByteArray const & jpg_buffer, QRect const position) {
+void face_recog_api::request_embedding(QByteArray const &  jpg_buffer) {
     auto multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     QHttpPart imagePart{};
@@ -33,21 +28,9 @@ void face_recog_api::request_embedding(QByteArray const & jpg_buffer, QRect cons
 
     QNetworkReply * reply = networkManager.post(request, multiPart);
     multiPart->setParent(reply); // delete the multiPart with the reply
-
-    connect(reply, &QNetworkReply::finished,
-            [this, reply, jpg_buffer, position](){
-                QByteArray embedding = reply->readAll();
-                qDebug() << QString(embedding);
-                track(jpg_buffer, embedding, position);
-            });
-
-    connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
-            [](auto const code){
-                qCritical() << "request failed: " << code;
-            });
 }
 
-void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & embedding, QRect const position) {
+void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & embedding, std::vector<cv::Rect> const & positions) {
     auto multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     auto jsonDoc = QJsonDocument::fromJson(embedding);
@@ -55,10 +38,10 @@ void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & emb
             {"location", "cam2"},
             {"positions", QJsonArray{
                     QJsonObject{
-                            {"top", position.top()},
-                            {"left", position.left()},
-                            {"width", position.width()},
-                            {"height", position.height()}
+                            {"top", positions[0].x},
+                            {"left", positions[0].y},
+                            {"width", positions[0].width},
+                            {"height", positions[0].height}
                     }
             }},
             {"embeddings", jsonDoc.object()["embedding"].toArray()}

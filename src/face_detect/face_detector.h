@@ -14,7 +14,7 @@
 
 struct face_detector{
     void initialize();
-    QVector<QRect> detect(cv::Mat & image);
+    std::vector<cv::Rect> detect(cv::Mat & image);
 private:
     dlib::frontal_face_detector detector{};
     dlib::shape_predictor pose_model{};

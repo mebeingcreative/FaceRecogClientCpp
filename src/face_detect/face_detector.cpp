@@ -4,8 +4,6 @@
 
 #include "face_detector.h"
 #include <QDebug>
-#include <algorithm>
-#include <iterator>
 
 inline cv::Rect transform_to_rect(cv::Mat const & mat, dlib::rectangle const & r) {
     return {
@@ -44,7 +42,7 @@ void face_detector::initialize() {
     }
 }
 
-QVector<QRect> face_detector::detect(cv::Mat & image){
+std::vector<cv::Rect> face_detector::detect(cv::Mat & image){
     // Turn OpenCV's Mat into something dlib can deal with.  Note that this just
     // wraps the Mat object, it doesn't copy anything.  So cimg is only valid as
     // long as temp is valid.  Also don't do anything to temp that would cause it
@@ -53,29 +51,17 @@ QVector<QRect> face_detector::detect(cv::Mat & image){
     // while using cimg.
     dlib::cv_image<dlib::bgr_pixel> cimg(image);
 
-    std::vector<dlib::rectangle> faces = detector(cimg);
-
     auto shapes = std::vector<dlib::full_object_detection>{};
-    auto jpgImage = std::vector<unsigned char>{};
-
+    auto rects = std::vector<cv::Rect>{};
+    std::vector<dlib::rectangle> faces = detector(cimg);
     for (auto & face : faces) {
         shapes.push_back(pose_model(cimg, face));
-//                cv::Mat face_mat;
-//                originalImage.copyTo(face_mat(dlibRectangleToOpenCV(face)));
-
-        grow_margin(face);
-        auto face_rect = transform_to_rect(image, face);
-      //  convert_to_jpeg(image(face_rect), jpgImage);
+        rects.push_back(transform_to_rect(image, face));
     }
-
-    //auto qarray = convert_to_qbytearray(jpgImage);
-    //api.request_embedding(qarray, face);
 
     /*dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;
     extract_image_chips(cimg, get_face_chip_details(shapes), face_chips);
     face_win.set_image(dlib::tile_images(face_chips));*/
 
-    QVector<QRect> out;
-    std::transform(faces.cbegin(), faces.cend(), std::back_inserter(out), transform_to_qrect);
-    return out;
+    return rects;
 }

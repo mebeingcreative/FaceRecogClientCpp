@@ -20,7 +20,6 @@ public:
 
 private:
     std::unique_ptr<Ui::QtGLWebcamDemo> ui;
-    face_recog_api api;
 };
 
 #endif // QTGLWEBCAMDEMO_H

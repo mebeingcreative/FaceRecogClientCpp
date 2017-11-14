@@ -1,19 +1,8 @@
 #include "qviewergl.h"
 #include <QDebug>
 
-void convert_to_jpeg(cv::Mat & mat, std::vector<unsigned char> & out) {
-    std::vector<int> params{ cv::IMWRITE_JPEG_QUALITY, 80 };
-    out.clear();
-    cv::imencode(".jpg", mat, out, params);
-    //std::ofstream outfile ("test.jpg", std::ofstream::binary);
-    //outfile.write(reinterpret_cast<char *>(out.data()), out.size());
-}
-
-QByteArray convert_to_qbytearray(std::vector<unsigned char> const & vector){
-    return {reinterpret_cast<char const *>(vector.data()), static_cast<int const>(vector.size())};
-}
-
 QViewerGl::QViewerGl(QWidget* parent) :
+        recog_service{},
         QWidget{parent}
 {
     if (!capture.isOpened() && !capture.open(0)) {
@@ -37,14 +26,20 @@ QViewerGl::~QViewerGl() = default;
 
 void QViewerGl::paintEvent(QPaintEvent * event) {
     capture.read(imageBGR);
-    auto faces = detector.detect(imageBGR);
     cvtColor(imageBGR, imageRGBA, CV_BGR2RGBA);
 
     QPainter painter{this};
     auto const origin = QPoint{0,0};
     qimage = QImage{imageRGBA.data, imageRGBA.cols, imageRGBA.rows, QImage::Format_RGBA8888_Premultiplied};
     painter.drawImage(origin, qimage);
-    painter.drawRects(faces);
+
+    auto const faces = detector.detect(imageBGR);
+    for (auto const & f: faces){
+        painter.drawRect(f.x, f.y, f.width, f.height);
+    }
+    if (!faces.empty()) {
+        recog_service.recognize(imageBGR, faces);
+    }
 }
 
 QSize QViewerGl::minimumSizeHint() const {
