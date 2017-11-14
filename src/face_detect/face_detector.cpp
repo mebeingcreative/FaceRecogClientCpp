@@ -33,7 +33,7 @@ void face_detector::initialize() {
     try {
         detector = dlib::get_frontal_face_detector();
         dlib::shape_predictor pose_model;
-        dlib::deserialize("../res/shape_predictor_68_face_landmarks.dat") >> pose_model;
+        dlib::deserialize("./shape_predictor_68_face_landmarks.dat") >> pose_model;
     } catch (dlib::serialization_error & e) {
         qCritical() << "You need dlib's default face landmarking model file to run this example.\n"
                 "You can get it from the following URL: \n"

@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 #include "face_recog_api/face_recog_api.h"
-
+#include "config.h"
 
 namespace Ui {
     class QtGLWebcamDemo;
@@ -16,7 +16,7 @@ class face_recog_demo:
 Q_OBJECT
 
 public:
-    explicit face_recog_demo(QWidget* parent = 0);
+    face_recog_demo(config const & cfg, QWidget* parent = 0);
     ~face_recog_demo() override;
 
 private:
