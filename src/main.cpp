@@ -30,14 +30,15 @@
 #include <QException>
 #include <QDebug>
 
-#include "qtglwebcamdemo.h"
+#include "face_recog_demo.h"
 
 int main(int argc, char* argv[]) {
     int res = -1;
 
     try {
+        //auto cfg = config{"config.ini"};
         QApplication a(argc, argv);
-        QtGLWebcamDemo w;
+        face_recog_demo w{};
         w.showMaximized();
 
         res = a.exec();

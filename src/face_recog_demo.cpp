@@ -1,9 +1,9 @@
 #include <QDebug>
 
-#include "qtglwebcamdemo.h"
+#include "face_recog_demo.h"
 #include "ui_qtglwebcamdemo.h"
 
-QtGLWebcamDemo::QtGLWebcamDemo(QWidget* parent) :
+face_recog_demo::face_recog_demo(QWidget* parent) :
         QMainWindow(parent) {
     ui = std::make_unique<Ui::QtGLWebcamDemo>();
     ui->setupUi(this);
@@ -11,4 +11,4 @@ QtGLWebcamDemo::QtGLWebcamDemo(QWidget* parent) :
     ui->webView->show();
 }
 
-QtGLWebcamDemo::~QtGLWebcamDemo() = default;
+face_recog_demo::~face_recog_demo() = default;
