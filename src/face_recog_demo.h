@@ -8,7 +8,7 @@
 #include "config.h"
 
 namespace Ui {
-    class QtGLWebcamDemo;
+    class face_recog_demo;
 }
 
 class face_recog_demo:
@@ -20,7 +20,7 @@ public:
     ~face_recog_demo() override;
 
 private:
-    std::unique_ptr<Ui::QtGLWebcamDemo> ui;
+    std::unique_ptr<Ui::face_recog_demo> ui;
 };
 
 #endif // FACERECOGCLIENTCPP_FACE_RECOG_DEMO_H
