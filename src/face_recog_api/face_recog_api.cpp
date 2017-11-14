@@ -38,8 +38,8 @@ void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & emb
             {"location", "cam2"},
             {"positions", QJsonArray{
                     QJsonObject{
-                            {"top", positions[0].x},
-                            {"left", positions[0].y},
+                            {"top", positions[0].y},
+                            {"left", positions[0].x},
                             {"width", positions[0].width},
                             {"height", positions[0].height}
                     }
