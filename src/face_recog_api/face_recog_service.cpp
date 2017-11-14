@@ -36,12 +36,11 @@ void face_recog_service::recognize(cv::Mat const & mat, std::vector<cv::Rect> co
     }
     faces_positions = faces;
     grow_buffer(faces_positions.size());
-
-    auto jpeg_buffer = std::vector<unsigned char>();
-
-    resize(mat(faces_positions[0]), faces_buffer[0], face_dimension);
+    for (int i{0}; i < faces_positions.size(); ++i){
+        resize(mat(faces_positions[i]), faces_buffer[i], face_dimension);
+    }
     api.request_embedding(wrap_with_qbytearray(
-            convert_to_jpeg(faces_buffer[0], jpeg_buffer)));
+            convert_to_jpeg(faces_buffer[0], jpg_buffer)));
 
     convert_to_jpeg(mat, image);
     state = service_state::requesting_embedding;
@@ -62,7 +61,6 @@ void face_recog_service::process_reply(QNetworkReply * const reply){
         return;
     }
 
-//  qDebug() << response->readAll();
     if (state == service_state::requesting_embedding){
         process_embedding_reply(reply);
     } else if (state == service_state::requesting_track){
@@ -75,12 +73,12 @@ void face_recog_service::process_reply(QNetworkReply * const reply){
 
 void face_recog_service::process_embedding_reply(QNetworkReply * const reply){
     auto embedding = reply->readAll();
-    qDebug() << QString(embedding);
+    qDebug() << embedding;
     api.track(wrap_with_qbytearray(image), embedding, faces_positions);
     state = service_state::requesting_track;
 }
 
 void face_recog_service::process_track_reply(QNetworkReply * const reply){
-
+    qDebug() << reply->readAll();
     state = service_state::ready;
 }

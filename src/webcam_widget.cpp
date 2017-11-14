@@ -30,6 +30,7 @@ void webcam_widget::paintEvent(QPaintEvent * event) {
     cvtColor(imageBGR, imageRGBA, CV_BGR2RGBA);
 
     QPainter painter{this};
+    painter.setPen(Qt::green);
     auto const origin = QPoint{0,0};
     qimage = QImage{imageRGBA.data, imageRGBA.cols, imageRGBA.rows, QImage::Format_RGBA8888_Premultiplied};
     painter.drawImage(origin, qimage);

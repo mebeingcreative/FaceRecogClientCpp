@@ -33,17 +33,21 @@ void face_recog_api::request_embedding(QByteArray const &  jpg_buffer) {
 void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & embedding, std::vector<cv::Rect> const & positions) {
     auto multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
+    auto jsonPositions = QJsonArray{};
+
+    for(auto const & p : positions){
+       jsonPositions.push_back(QJsonObject{
+               {"top", p.y},
+               {"left", p.x},
+               {"width", p.width},
+               {"height", p.height}
+       });
+    }
+
     auto jsonDoc = QJsonDocument::fromJson(embedding);
     auto jsonObj = QJsonObject{
             {"location", "cam2"},
-            {"positions", QJsonArray{
-                    QJsonObject{
-                            {"top", positions[0].y},
-                            {"left", positions[0].x},
-                            {"width", positions[0].width},
-                            {"height", positions[0].height}
-                    }
-            }},
+            {"positions", jsonPositions},
             {"embeddings", jsonDoc.object()["embedding"].toArray()}
     };
     jsonDoc.setObject(jsonObj);
@@ -68,14 +72,4 @@ void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & emb
 
     QNetworkReply * reply = networkManager.post(request, multiPart);
     multiPart->setParent(reply); // delete the multiPart with the reply
-
-    connect(reply, &QNetworkReply::finished,
-            [reply](){
-                qDebug() << QString(reply->readAll());
-            });
-
-    connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
-            [](auto const code){
-                qCritical() << "request failed: " << code;
-            });
 }
