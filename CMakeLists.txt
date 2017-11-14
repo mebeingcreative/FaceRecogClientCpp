@@ -3,12 +3,26 @@ project(FaceRecogClientCpp CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(DLIB_NO_GUI_SUPPORT true)
+set(DLIB_JPEG_SUPPORT false)
+set(DLIB_LINK_WITH_SQLITE3 false)
+set(DLIB_USE_BLAS false)
+set(DLIB_USE_LAPACK false)
+set(DLIB_USE_CUDA false)
+set(DLIB_PNG_SUPPORT false)
+set(DLIB_GIF_SUPPORT false)
+set(DLIB_USE_MKL_FFT false)
 add_subdirectory(libs/dlib)
+
+find_package(OpenCV COMPONENTS
+        core
+        imgproc
+        highgui
+        REQUIRED)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(OpenCV REQUIRED)
 find_package(Qt5 COMPONENTS
         Widgets
         Network
