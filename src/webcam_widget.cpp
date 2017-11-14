@@ -1,7 +1,7 @@
-#include "qviewergl.h"
+#include "webcam_widget.h"
 #include <QDebug>
 
-QViewerGl::QViewerGl(QWidget* parent) :
+webcam_widget::webcam_widget(QWidget* parent) :
         recog_service{},
         QWidget{parent}
 {
@@ -22,9 +22,9 @@ QViewerGl::QViewerGl(QWidget* parent) :
     timer->start(20);
 }
 
-QViewerGl::~QViewerGl() = default;
+webcam_widget::~webcam_widget() = default;
 
-void QViewerGl::paintEvent(QPaintEvent * event) {
+void webcam_widget::paintEvent(QPaintEvent * event) {
     capture.read(imageBGR);
     cvtColor(imageBGR, imageRGBA, CV_BGR2RGBA);
 
@@ -42,6 +42,6 @@ void QViewerGl::paintEvent(QPaintEvent * event) {
     }
 }
 
-QSize QViewerGl::minimumSizeHint() const {
+QSize webcam_widget::minimumSizeHint() const {
     return cameraSize;
 }

@@ -21,8 +21,7 @@ add_executable(FaceRecogClientCpp
         src/face_recog_api/face_recog_service.cpp
         src/face_detect/face_detector.cpp
         src/face_recog_demo.cpp
-        src/qtglwebcamdemo.ui
-        src/qviewergl.cpp
+        src/webcam_widget.cpp
         )
 
 target_link_libraries(FaceRecogClientCpp

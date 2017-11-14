@@ -9,12 +9,12 @@
 #include "face_detect/face_detector.h"
 #include "face_recog_api/face_recog_service.h"
 
-class QViewerGl :
+class webcam_widget :
         public QWidget {
 Q_OBJECT
 public:
-    explicit QViewerGl(QWidget* parent = 0);
-    ~QViewerGl() override;
+    explicit webcam_widget(QWidget* parent = 0);
+    ~webcam_widget() override;
 protected:
     void paintEvent(QPaintEvent *event) override;
     QSize minimumSizeHint() const override;
