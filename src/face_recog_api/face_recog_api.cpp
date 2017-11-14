@@ -1,14 +1,12 @@
 #include "face_recog_api.h"
 
-#include <iostream>
 #include <QtNetwork>
 #include <QDebug>
 
-#include "face_recog_api.moc"
-
-face_recog_api::face_recog_api(QObject *parent):
-        config{fetch_config()},
-        QObject(parent){
+face_recog_api::face_recog_api(QObject * parent):
+        QObject(parent),
+        config{fetch_config()}
+{
     embedding_url = config.embedding_host_url;
     embedding_url.setPath("/embed");
     tracking_url = config.tracking_host_url;

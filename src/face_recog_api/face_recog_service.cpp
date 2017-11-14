@@ -2,11 +2,10 @@
 // Created by viruch on 14.11.17.
 //
 
-#include <fstream>
 #include <QNetworkReply>
-#include "face_recog_service.h"
-#include "face_recog_service.moc"
 #include <opencv2/opencv.hpp>
+
+#include "face_recog_service.h"
 
 std::vector<unsigned char> & convert_to_jpeg(cv::Mat const & mat, std::vector<unsigned char> & out) {
     std::vector<int> params{ cv::IMWRITE_JPEG_QUALITY, 80 };
@@ -19,7 +18,8 @@ QByteArray wrap_with_qbytearray(std::vector<unsigned char> const & vector){
     return {reinterpret_cast<char const *>(vector.data()), static_cast<int const>(vector.size())};
 }
 
-face_recog_service::face_recog_service():
+face_recog_service::face_recog_service(QObject *parent):
+    QObject(parent),
     api{},
     faces_buffer{},
     face_dimension{182, 182},

@@ -8,15 +8,16 @@
 #include <QtCore/QObject>
 #include <QNetworkAccessManager>
 #include <opencv2/core/core.hpp>
+
 #include "face_recog_api.h"
 
 enum class service_state { ready, requesting_embedding, requesting_track };
 
 class face_recog_service
-    : public QObject {
-    Q_OBJECT
+        : public QObject {
+Q_OBJECT
 public:
-    face_recog_service();
+    explicit face_recog_service(QObject *parent = nullptr);
     void recognize(cv::Mat const & mat, std::vector<cv::Rect> const & faces);
 private:
     void grow_buffer(size_t size);

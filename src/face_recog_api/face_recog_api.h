@@ -2,12 +2,13 @@
 #define FACERECOGCLIENTCPP_FACE_RECOG_API_H
 
 #include <QtCore/QObject>
-#include <QIODevice>
-#include <QNetworkAccessManager>
 #include <QUrl>
+#include <QNetworkAccessManager>
 #include <opencv2/core/core.hpp>
 #include <string>
+
 #include "face_recog_config.h"
+
 
 class face_recog_api
         : public QObject {

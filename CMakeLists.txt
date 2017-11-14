@@ -3,6 +3,8 @@ project(FaceRecogClientCpp CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 
+add_subdirectory(libs/dlib)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
@@ -12,8 +14,6 @@ find_package(Qt5 COMPONENTS
         Network
         WebEngineWidgets
         REQUIRED)
-
-add_subdirectory(libs/dlib)
 
 add_executable(FaceRecogClientCpp
         src/main.cpp
@@ -38,7 +38,6 @@ target_include_directories(FaceRecogClientCpp
             src
             OpenCV::OpenCV
         )
-
 
 configure_file(res/default-config.ini config.ini COPYONLY)
 
