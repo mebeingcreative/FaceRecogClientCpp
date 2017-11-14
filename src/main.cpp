@@ -29,8 +29,8 @@
 #include <QApplication>
 #include <QException>
 #include <QDebug>
-#include "config.h"
 
+#include "config.h"
 #include "face_recog_demo.h"
 
 int main(int argc, char* argv[]) {

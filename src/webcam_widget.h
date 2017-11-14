@@ -1,11 +1,11 @@
 #ifndef QVIEWERGL_H
 #define QVIEWERGL_H
 
-#include <QtGui>
 #include <QWidget>
+#include <QTimer>
+#include <QImage>
 #include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+
 #include "face_detect/face_detector.h"
 #include "face_recog_api/face_recog_service.h"
 

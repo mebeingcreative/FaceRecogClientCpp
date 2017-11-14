@@ -4,11 +4,8 @@
 #include <QtCore/QObject>
 #include <QIODevice>
 #include <QNetworkAccessManager>
-#include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <string>
-#include <functional>
 
 class face_recog_api
         : public QObject {

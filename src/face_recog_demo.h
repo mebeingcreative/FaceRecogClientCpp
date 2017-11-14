@@ -3,8 +3,6 @@
 
 #include <QMainWindow>
 #include <memory>
-#include <vector>
-#include "face_recog_api/face_recog_api.h"
 #include "config.h"
 
 namespace Ui {

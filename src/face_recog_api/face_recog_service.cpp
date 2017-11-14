@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 #include "face_recog_service.h"
 #include "face_recog_service.moc"
+#include <opencv2/opencv.hpp>
 
 std::vector<unsigned char> & convert_to_jpeg(cv::Mat const & mat, std::vector<unsigned char> & out) {
     std::vector<int> params{ cv::IMWRITE_JPEG_QUALITY, 80 };

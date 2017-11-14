@@ -7,9 +7,7 @@
 
 #include <QtCore/QObject>
 #include <QNetworkAccessManager>
-#include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include "face_recog_api.h"
 
 

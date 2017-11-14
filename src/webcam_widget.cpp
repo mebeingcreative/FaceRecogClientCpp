@@ -1,5 +1,6 @@
 #include "webcam_widget.h"
 #include <QDebug>
+#include <QPainter>
 
 webcam_widget::webcam_widget(QWidget* parent) :
         recog_service{},
