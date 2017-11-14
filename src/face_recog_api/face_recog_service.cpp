@@ -20,7 +20,7 @@ QByteArray wrap_with_qbytearray(std::vector<unsigned char> const & vector){
 }
 
 face_recog_service::face_recog_service():
-    api{"http://localhost:5001"},
+    api{},
     faces_buffer{},
     face_dimension{182, 182},
     state{service_state::ready}

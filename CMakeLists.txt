@@ -39,8 +39,10 @@ target_include_directories(FaceRecogClientCpp
             OpenCV::OpenCV
         )
 
-set(LANDMARK_FILE "${CMAKE_SOURCE_DIR}/res/shape_predictor_68_face_landmarks.dat")
 
+configure_file(res/default-config.ini config.ini COPYONLY)
+
+set(LANDMARK_FILE "${CMAKE_SOURCE_DIR}/res/shape_predictor_68_face_landmarks.dat")
 configure_file(${LANDMARK_FILE} shape_predictor_68_face_landmarks.dat COPYONLY)
 if (NOT EXISTS ${LANDMARK_FILE})
     message(SEND_ERROR "You need dlib's default face landmarking model in order to run.\

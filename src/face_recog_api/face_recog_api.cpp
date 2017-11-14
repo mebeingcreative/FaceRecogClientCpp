@@ -6,9 +6,13 @@
 
 #include "face_recog_api.moc"
 
-face_recog_api::face_recog_api(std::string const & host, QObject *parent):
-        host{QString::fromStdString(host)},
+face_recog_api::face_recog_api(QObject *parent):
+        config{fetch_config()},
         QObject(parent){
+    embedding_url = config.embedding_host_url;
+    embedding_url.setPath("/embed");
+    tracking_url = config.tracking_host_url;
+    tracking_url.setPath("/track");
 }
 
 void face_recog_api::request_embedding(QByteArray const &  jpg_buffer) {
@@ -23,8 +27,7 @@ void face_recog_api::request_embedding(QByteArray const &  jpg_buffer) {
 
     multiPart->append(imagePart);
 
-    auto const qurl = QUrl{host + "/embed"};
-    auto const request = QNetworkRequest{qurl};
+    auto const request = QNetworkRequest{embedding_url};
 
     QNetworkReply * reply = networkManager.post(request, multiPart);
     multiPart->setParent(reply); // delete the multiPart with the reply
@@ -46,7 +49,7 @@ void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & emb
 
     auto jsonDoc = QJsonDocument::fromJson(embedding);
     auto jsonObj = QJsonObject{
-            {"location", "cam2"},
+            {"location", config.location_name},
             {"positions", jsonPositions},
             {"embeddings", jsonDoc.object()["embedding"].toArray()}
     };
@@ -67,8 +70,7 @@ void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & emb
     multiPart->append(jsonPart);
     multiPart->append(imagePart);
 
-    auto const qurl = QUrl{"https://face.otep.ch/track"};
-    auto const request = QNetworkRequest{qurl};
+    auto const request = QNetworkRequest{tracking_url};
 
     QNetworkReply * reply = networkManager.post(request, multiPart);
     multiPart->setParent(reply); // delete the multiPart with the reply

@@ -3,8 +3,8 @@
 #include <QPainter>
 
 webcam_widget::webcam_widget(QWidget* parent) :
-        recog_service{},
-        QWidget{parent}
+        QWidget{parent},
+        recog_service{}
 {
     if (!capture.isOpened() && !capture.open(0)) {
         qCritical() << "Failed to open camera";

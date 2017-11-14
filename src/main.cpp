@@ -30,16 +30,14 @@
 #include <QException>
 #include <QDebug>
 
-#include "config.h"
 #include "face_recog_demo.h"
 
 int main(int argc, char* argv[]) {
     int res = -1;
 
     try {
-        auto cfg = fetch_config("config.ini");
         QApplication a(argc, argv);
-        face_recog_demo w{cfg};
+        face_recog_demo w{};
         w.showMaximized();
 
         res = a.exec();

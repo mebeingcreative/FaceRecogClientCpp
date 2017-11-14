@@ -10,7 +10,6 @@
 #include <opencv2/core/core.hpp>
 #include "face_recog_api.h"
 
-
 enum class service_state { ready, requesting_embedding, requesting_track };
 
 class face_recog_service
