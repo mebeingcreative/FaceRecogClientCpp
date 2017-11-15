@@ -46,6 +46,7 @@ add_executable(FaceRecogClientCpp
         src/webcam_widget.cpp
         )
 
+
 target_link_libraries(FaceRecogClientCpp
         PRIVATE
             ${OpenCV_LIBS}
@@ -102,7 +103,7 @@ set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/README.md")
 set(CPACK_SOURCE_GENERATOR "TBZ2" "DEB")
 
 # --- DEB package config ---
-set(CPACK_DEBIAN_PACKAGE_SECTION "x11")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.15), libconfig9, libdbus-1-3 (>= 1.1.1), libgl1-mesa-glx | libgl1 | libgl1-nvidia-glx | libgl1-fglrx-glx, libpcre3 (>= 8.10), libx11-6, libxcomposite1 (>= 1:0.3-1), libxdamage1 (>= 1:1.1), libxext6, libxfixes3, libxrandr2 (>= 4.3), libxrender1, libxinerama1")
+set(CPACK_DEBIAN_PACKAGE_SECTION "misc")
+#set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.15), libconfig9, libdbus-1-3 (>= 1.1.1), libgl1-mesa-glx | libgl1 | libgl1-nvidia-glx | libgl1-fglrx-glx, libpcre3 (>= 8.10), libx11-6, libxcomposite1 (>= 1:0.3-1), libxdamage1 (>= 1:1.1), libxext6, libxfixes3, libxrandr2 (>= 4.3), libxrender1, libxinerama1")
 
 include(CPack)
