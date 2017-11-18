@@ -12,7 +12,7 @@
 #include <QRect>
 
 struct face_detector{
-    void initialize();
+    face_detector();
     std::vector<cv::Rect> detect(cv::Mat & image);
 private:
     dlib::frontal_face_detector detector{};

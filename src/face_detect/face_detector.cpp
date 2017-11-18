@@ -2,8 +2,10 @@
 // Created by viruch on 07.11.17.
 //
 
-#include "face_detector.h"
 #include <QDebug>
+
+#include "face_detector.h"
+#include "face_recog_config.h"
 
 inline cv::Rect transform_to_rect(cv::Mat const & mat, dlib::rectangle const & r) {
     return {
@@ -29,16 +31,18 @@ void grow_margin(dlib::rectangle & r) {
     r.bottom() += 2 * margins;
 }
 
-void face_detector::initialize() {
+face_detector::face_detector() {
+    auto config = fetch_config();
     try {
         detector = dlib::get_frontal_face_detector();
         dlib::shape_predictor pose_model;
-        dlib::deserialize("./shape_predictor_68_face_landmarks.dat") >> pose_model;
+        dlib::deserialize(config.predictor_path) >> pose_model;
     } catch (dlib::serialization_error & e) {
         qCritical() << "You need dlib's default face landmarking model file to run this example.\n"
                 "You can get it from the following URL: \n"
                 "   http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2\n\n"
                     << e.what() << "\n";
+        throw e;
     }
 }
 

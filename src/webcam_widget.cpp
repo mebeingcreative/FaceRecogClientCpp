@@ -4,6 +4,8 @@
 
 webcam_widget::webcam_widget(QWidget* parent) :
         QWidget{parent},
+        capture{},
+        detector{},
         recog_service{}
 {
     if (!capture.isOpened() && !capture.open(0)) {
@@ -15,8 +17,6 @@ webcam_widget::webcam_widget(QWidget* parent) :
             static_cast<int>(capture.get(CV_CAP_PROP_FRAME_WIDTH)),
             static_cast<int>(capture.get(CV_CAP_PROP_FRAME_WIDTH))
     };
-
-    detector.initialize();
 
     timer = new QTimer{this};
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));

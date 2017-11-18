@@ -19,8 +19,8 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     QSize minimumSizeHint() const override;
 private:
-    cv::VideoCapture capture{};
-    face_detector detector{};
+    cv::VideoCapture capture;
+    face_detector detector;
     cv::Mat imageBGR;
     cv::Mat imageRGBA;
     QImage qimage;
