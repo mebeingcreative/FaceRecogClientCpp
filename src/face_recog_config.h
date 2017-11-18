@@ -9,6 +9,7 @@
 #include <QString>
 #include <QUrl>
 #include <QSettings>
+#include "auto_generated/face_recog_constants.h"
 
 struct face_recog_config{
     face_recog_config(
@@ -32,7 +33,7 @@ struct face_recog_config{
 };
 
 inline face_recog_config fetch_config(){
-    QSettings settings("config.ini", QSettings::IniFormat);
+    QSettings settings(FACE_RECOG_CONFIG_PATH, QSettings::IniFormat);
     return {
             QUrl{settings.value("embedding_host_url").toString()},
             QUrl{settings.value("tracking_host_url").toString()},

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(FaceRecogClientCpp CXX)
+project(face-recog-client CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -37,7 +37,7 @@ find_package(Qt5 COMPONENTS
 
 # Project Definitions
 
-add_executable(FaceRecogClientCpp
+add_executable(face-recog-client
         src/main.cpp
         src/face_recog_api/face_recog_api.cpp
         src/face_recog_api/face_recog_service.cpp
@@ -47,7 +47,7 @@ add_executable(FaceRecogClientCpp
         )
 
 
-target_link_libraries(FaceRecogClientCpp
+target_link_libraries(face-recog-client
         PRIVATE
             ${OpenCV_LIBS}
             dlib::dlib
@@ -56,7 +56,7 @@ target_link_libraries(FaceRecogClientCpp
             Qt5::WebEngineWidgets
         )
 
-target_include_directories(FaceRecogClientCpp
+target_include_directories(face-recog-client
         PRIVATE
             src
             OpenCV::OpenCV
@@ -64,23 +64,32 @@ target_include_directories(FaceRecogClientCpp
 
 # Runtime Files
 
-configure_file(res/config.ini config.ini COPYONLY)
+set(FACE_RECOG_CONFIG_PATH "./face-recog-config.ini")
+set(FACE_RECOG_LANDMARK_FILE_PATH "./shape_predictor_68_face_landmarks.dat")
+
+configure_file(res/face-recog-config.ini.in face-recog-config.ini)
+configure_file(res/face_recog_constants.h.in "include/auto_generated/face_recog_constants.h")
+
+target_include_directories(face-recog-client
+        PRIVATE
+        "${CMAKE_BINARY_DIR}/include"
+        )
 
 set(LANDMARK_FILE "${CMAKE_SOURCE_DIR}/res/shape_predictor_68_face_landmarks.dat")
-configure_file(${LANDMARK_FILE} shape_predictor_68_face_landmarks.dat COPYONLY)
 if (NOT EXISTS ${LANDMARK_FILE})
     message(SEND_ERROR "You need dlib's default face landmarking model in order to run.\
             http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 extract it to ${LANDMARK_FILE}"
             )
 endif()
+configure_file(${LANDMARK_FILE} shape_predictor_68_face_landmarks.dat COPYONLY)
 
 # == Install ==
 include(GNUInstallDirs)
 
-install(TARGETS FaceRecogClientCpp
+install(TARGETS face-recog-client
         DESTINATION "${CMAKE_INSTALL_BINDIR}")
 install(FILES
-            "${PROJECT_SOURCE_DIR}/res/config.ini"
+            "${PROJECT_SOURCE_DIR}/res/face-recog-config.ini"
             "${LANDMARK_FILE}"
         DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
@@ -93,14 +102,14 @@ set(CPACK_PACKAGE_DIRECTORY "${CMAKE_SOURCE_DIR}/release")
 #set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/desc.txt")
 
 # --- Package config ---
-set(CPACK_GENERATOR "TBZ2" "DEB")
+set(CPACK_GENERATOR "DEB")
 set(CPACK_MONOLITHIC_INSTALL 1)
 set(CPACK_STRIP_FILES 1)
 #set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/README.md")
 
 # --- Source package config ---
-set(CPACK_SOURCE_GENERATOR "TBZ2" "DEB")
+set(CPACK_SOURCE_GENERATOR "DEB")
 
 # --- DEB package config ---
 set(CPACK_DEBIAN_PACKAGE_SECTION "misc")

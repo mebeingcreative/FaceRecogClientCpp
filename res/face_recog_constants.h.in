@@ -1,0 +1,8 @@
+// Will be auto generated in build folder include/auto_generated/face_recog_constants.h
+
+#ifndef FACERECOGCLIENTCPP_FACE_RECOG_CONSTANTS_H_H
+#define FACERECOGCLIENTCPP_FACE_RECOG_CONSTANTS_H_H
+
+#define FACE_RECOG_CONFIG_PATH "${FACE_RECOG_CONFIG_PATH}"
+
+#endif //FACERECOGCLIENTCPP_FACE_RECOG_CONSTANTS_H_H

@@ -38,10 +38,7 @@ face_detector::face_detector() {
         dlib::shape_predictor pose_model;
         dlib::deserialize(config.predictor_path) >> pose_model;
     } catch (dlib::serialization_error & e) {
-        qCritical() << "You need dlib's default face landmarking model file to run this example.\n"
-                "You can get it from the following URL: \n"
-                "   http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2\n\n"
-                    << e.what() << "\n";
+        qCritical() << "dlib's default face landmarking model is missing!" << e.what() << "\n";
         throw e;
     }
 }
