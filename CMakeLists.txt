@@ -32,7 +32,7 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt5 COMPONENTS
         Widgets
         Network
-        WebEngineWidgets
+        WebKitWidgets
         REQUIRED)
 
 # Project Definitions
@@ -53,7 +53,7 @@ target_link_libraries(face-recog-client
             dlib::dlib
             Qt5::Widgets
             Qt5::Network
-            Qt5::WebEngineWidgets
+            Qt5::WebKitWidgets
         )
 
 target_include_directories(face-recog-client

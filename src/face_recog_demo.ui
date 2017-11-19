@@ -19,7 +19,7 @@
      <widget class="webcam_widget" name="openCVviewer" native="true"/>
     </item>
     <item>
-     <widget class="QWebEngineView" name="webView"/>
+     <widget class="QWebView" name="webView"/>
     </item>
    </layout>
   </widget>
