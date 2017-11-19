@@ -111,6 +111,6 @@ set(CPACK_SOURCE_GENERATOR "DEB")
 
 # --- DEB package config ---
 set(CPACK_DEBIAN_PACKAGE_SECTION "misc")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libopencv-highgui2.4-deb0, libopencv-imgproc2.4-deb0, libopencv-core2.4-deb0, libqt5widgets5, libqt5network5, libqt5webkit5")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libblas3, libopencv-highgui2.4-deb0, libopencv-imgproc2.4-deb0, libopencv-core2.4-deb0, libqt5widgets5, libqt5network5, libqt5webkit5")
 
 include(CPack)
