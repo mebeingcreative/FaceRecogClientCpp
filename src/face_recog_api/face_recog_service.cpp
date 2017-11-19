@@ -14,10 +14,6 @@ std::vector<unsigned char> & convert_to_jpeg(cv::Mat const & mat, std::vector<un
     return out;
 }
 
-QByteArray wrap_with_qbytearray(std::vector<unsigned char> const & vector){
-    return {reinterpret_cast<char const *>(vector.data()), static_cast<int const>(vector.size())};
-}
-
 face_recog_service::face_recog_service(QObject *parent):
     QObject(parent),
     api{},
@@ -35,12 +31,13 @@ void face_recog_service::recognize(cv::Mat const & mat, std::vector<cv::Rect> co
         return;
     }
     faces_positions = faces;
-    grow_buffer(faces_positions.size());
-    for (int i{0}; i < faces_positions.size(); ++i){
+    auto n_of_faces = faces_positions.size();
+    grow_buffer(n_of_faces);
+    for (int i{0}; i < n_of_faces; ++i){
         resize(mat(faces_positions[i]), faces_buffer[i], face_dimension);
+        convert_to_jpeg(faces_buffer[i], jpg_buffer[i]);
     }
-    api.request_embedding(wrap_with_qbytearray(
-            convert_to_jpeg(faces_buffer[0], jpg_buffer)));
+    api.request_embedding(jpg_buffer, n_of_faces);
 
     convert_to_jpeg(mat, image);
     state = service_state::requesting_embedding;
@@ -49,6 +46,7 @@ void face_recog_service::recognize(cv::Mat const & mat, std::vector<cv::Rect> co
 void face_recog_service::grow_buffer(size_t const size){
     while (faces_buffer.size() < size){
         faces_buffer.emplace_back(face_dimension, CV_32SC3);
+        jpg_buffer.emplace_back(8 * 1000);
     }
 }
 
@@ -74,7 +72,7 @@ void face_recog_service::process_reply(QNetworkReply * const reply){
 void face_recog_service::process_embedding_reply(QNetworkReply * const reply){
     auto embedding = reply->readAll();
     qDebug() << embedding;
-    api.track(wrap_with_qbytearray(image), embedding, faces_positions);
+    api.track(image, embedding, faces_positions);
     state = service_state::requesting_track;
 }
 

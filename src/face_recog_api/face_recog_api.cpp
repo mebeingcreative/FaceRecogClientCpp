@@ -3,6 +3,10 @@
 #include <QtNetwork>
 #include <QDebug>
 
+QByteArray wrap_with_qbytearray(std::vector<unsigned char> const & vector) {
+    return {reinterpret_cast<char const *>(vector.data()), static_cast<int const>(vector.size())};
+}
+
 face_recog_api::face_recog_api(QObject * parent):
         QObject(parent),
         config{fetch_config()}
@@ -13,17 +17,19 @@ face_recog_api::face_recog_api(QObject * parent):
     tracking_url.setPath("/track");
 }
 
-void face_recog_api::request_embedding(QByteArray const &  jpg_buffer) {
+void face_recog_api::request_embedding(std::vector<std::vector<unsigned char>> const &  jpg_buffer, int n_of_faces) {
     auto multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-
     QHttpPart imagePart{};
-    imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/jpg"));
-    imagePart.setHeader(QNetworkRequest::ContentDispositionHeader,
-                        QVariant(R"(form-data; name="images[]"; filename="001.jpg")"));
 
-    imagePart.setBody(jpg_buffer);
+    for (auto i = 0; i < n_of_faces; ++i) {
+        imagePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/jpg"));
+        imagePart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                            QVariant(R"(form-data; name="images[]"; filename="001.jpg")"));
 
-    multiPart->append(imagePart);
+        imagePart.setBody(wrap_with_qbytearray(jpg_buffer[i]));
+
+        multiPart->append(imagePart);
+    }
 
     auto const request = QNetworkRequest{embedding_url};
 
@@ -31,7 +37,7 @@ void face_recog_api::request_embedding(QByteArray const &  jpg_buffer) {
     multiPart->setParent(reply); // delete the multiPart with the reply
 }
 
-void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & embedding, std::vector<cv::Rect> const & positions) {
+void face_recog_api::track(std::vector<unsigned char> const & jpg_buffer, QByteArray const & embedding, std::vector<cv::Rect> const & positions) {
     auto multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     auto jsonPositions = QJsonArray{};
@@ -63,7 +69,7 @@ void face_recog_api::track(QByteArray const & jpg_buffer, QByteArray const & emb
     imagePart.setHeader(QNetworkRequest::ContentDispositionHeader,
                         QVariant(R"(form-data; name="image"; filename="001.jpg")"));
 
-    imagePart.setBody(jpg_buffer);
+    imagePart.setBody(wrap_with_qbytearray(jpg_buffer));
 
     multiPart->append(jsonPart);
     multiPart->append(imagePart);

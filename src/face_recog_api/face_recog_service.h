@@ -30,7 +30,7 @@ private:
     std::vector<cv::Mat> faces_buffer;
     std::vector<cv::Rect> faces_positions;
     std::vector<unsigned char> image;
-    std::vector<unsigned char> jpg_buffer;
+    std::vector<std::vector<unsigned char>> jpg_buffer;
     service_state state;
 };
 
