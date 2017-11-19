@@ -8,7 +8,7 @@
 #include "face_recog_service.h"
 
 std::vector<unsigned char> & convert_to_jpeg(cv::Mat const & mat, std::vector<unsigned char> & out) {
-    std::vector<int> params{ cv::IMWRITE_JPEG_QUALITY, 80 };
+    std::vector<int> params{ cv::IMWRITE_JPEG_QUALITY, 95 };
     out.clear();
     cv::imencode(".jpg", mat, out, params);
     return out;

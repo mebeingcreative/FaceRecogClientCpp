@@ -2,5 +2,5 @@
 embedding_host_url = "http://localhost:5001/"
 tracking_host_url = "https://face.otep.ch/"
 location_name = "cam2"
-tracking_view_url = "https://face.otep.ch/locations/1/current"
+tracking_view_url = "https://face.otep.ch/locations/$location_name/current"
 predictor_path = "${FACE_RECOG_LANDMARK_PATH}"
