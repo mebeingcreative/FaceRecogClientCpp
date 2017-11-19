@@ -1,6 +1,7 @@
 #include "webcam_widget.h"
 #include <QDebug>
 #include <QPainter>
+#include <stdexcept>
 
 webcam_widget::webcam_widget(QWidget* parent) :
         QWidget{parent},
@@ -9,8 +10,7 @@ webcam_widget::webcam_widget(QWidget* parent) :
         recog_service{}
 {
     if (!capture.isOpened() && !capture.open(0)) {
-        qCritical() << "Failed to open camera";
-        return;
+        throw std::runtime_error{"Failed to open camera! Check if camera is connected"};
     }
 
     cameraSize = QSize{
