@@ -23,12 +23,13 @@ inline QRect transform_to_qrect(dlib::rectangle const & r){
             static_cast<int>(r.width()), static_cast<int>(r.height())};
 }
 
-template<int margins = 0L>
-void grow_margin(dlib::rectangle & r) {
-    r.left() -= margins;
-    r.top() -= margins;
-    r.right() += 2 * margins;
-    r.bottom() += 2 * margins;
+dlib::rectangle & grow_margin(dlib::rectangle & r) {
+    auto margin = 44.0f / 94.0f * r.width();
+    r.top() -= margin;
+    r.left() -= margin;
+    r.right() += margin;
+    r.bottom() += margin;
+    return r;
 }
 
 face_detector::face_detector() {
@@ -57,7 +58,7 @@ std::vector<cv::Rect> face_detector::detect(cv::Mat & image){
     std::vector<dlib::rectangle> faces = detector(cimg);
     for (auto & face : faces) {
         shapes.push_back(pose_model(cimg, face));
-        rects.push_back(transform_to_rect(image, face));
+        rects.push_back(transform_to_rect(image, grow_margin(face)));
     }
 
     /*dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;
