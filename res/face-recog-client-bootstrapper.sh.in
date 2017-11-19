@@ -1,0 +1,2 @@
+#!/bin/bash
+"${FACE_RECOG_DATA_PATH}/face-recog-client" "${FACE_RECOG_CONFIG_PATH}"

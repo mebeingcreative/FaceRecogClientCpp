@@ -64,34 +64,35 @@ target_include_directories(face-recog-client
 
 # Runtime Files
 
-set(FACE_RECOG_CONFIG_PATH "./face-recog-config.ini")
-set(FACE_RECOG_LANDMARK_FILE_PATH "./shape_predictor_68_face_landmarks.dat")
-
-configure_file(res/face-recog-config.ini.in face-recog-config.ini)
-configure_file(res/face_recog_constants.h.in "include/auto_generated/face_recog_constants.h")
-
-target_include_directories(face-recog-client
-        PRIVATE
-        "${CMAKE_BINARY_DIR}/include"
-        )
-
-set(LANDMARK_FILE "${CMAKE_SOURCE_DIR}/res/shape_predictor_68_face_landmarks.dat")
-if (NOT EXISTS ${LANDMARK_FILE})
+set(FACE_RECOG_LANDMARK_PATH "${CMAKE_SOURCE_DIR}/res/shape_predictor_68_face_landmarks.dat")
+if (NOT EXISTS ${FACE_RECOG_LANDMARK_PATH})
     message(SEND_ERROR "You need dlib's default face landmarking model in order to run.\
-            http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 extract it to ${LANDMARK_FILE}"
+            http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2 extract it to ${FACE_RECOG_LANDMARK_PATH}"
             )
 endif()
-configure_file(${LANDMARK_FILE} shape_predictor_68_face_landmarks.dat COPYONLY)
+configure_file(res/face-recog-config.ini.in face-recog-config.ini)
 
 # == Install ==
 include(GNUInstallDirs)
 
+set(FACE_RECOG_CONFIG_PATH "${CMAKE_INSTALL_FULL_SYSCONFDIR}/face-recog-config.ini")
+set(FACE_RECOG_DATA_PATH "${CMAKE_INSTALL_FULL_DATADIR}/face-recog-client")
+set(FACE_RECOG_LANDMARK_PATH "${FACE_RECOG_DATA_PATH}/shape_predictor_68_face_landmarks.dat")
+
+configure_file(res/face-recog-config.ini.in face-recog-config-release.ini)
+configure_file(res/face-recog-client-bootstrapper.sh.in face-recog-client-bootstrapper.sh)
+
 install(TARGETS face-recog-client
-        DESTINATION "${CMAKE_INSTALL_BINDIR}")
-install(FILES
-            "${PROJECT_SOURCE_DIR}/res/face-recog-config.ini"
-            "${LANDMARK_FILE}"
-        DESTINATION "${CMAKE_INSTALL_BINDIR}")
+        DESTINATION ${FACE_RECOG_DATA_PATH})
+install(FILES res/shape_predictor_68_face_landmarks.dat
+        DESTINATION ${FACE_RECOG_DATA_PATH})
+install(FILES "${CMAKE_BINARY_DIR}/face-recog-config-release.ini"
+        DESTINATION "${CMAKE_INSTALL_FULL_SYSCONFDIR}"
+        RENAME "face-recog-config.ini")
+install(FILES "${CMAKE_BINARY_DIR}/face-recog-client-bootstrapper.sh"
+        DESTINATION "${CMAKE_INSTALL_FULL_BINDIR}"
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        RENAME "face-recog-client")
 
 # == CPack ==
 
