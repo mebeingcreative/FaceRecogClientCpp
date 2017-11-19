@@ -8,12 +8,9 @@ set(CMAKE_CXX_STANDARD 14)
 set(DLIB_NO_GUI_SUPPORT true)
 set(DLIB_JPEG_SUPPORT false)
 set(DLIB_LINK_WITH_SQLITE3 false)
-set(DLIB_USE_BLAS false)
-set(DLIB_USE_LAPACK false)
 set(DLIB_USE_CUDA false)
 set(DLIB_PNG_SUPPORT false)
 set(DLIB_GIF_SUPPORT false)
-set(DLIB_USE_MKL_FFT false)
 add_subdirectory(libs/dlib)
 
 # Include OpenCV 2
@@ -114,6 +111,6 @@ set(CPACK_SOURCE_GENERATOR "DEB")
 
 # --- DEB package config ---
 set(CPACK_DEBIAN_PACKAGE_SECTION "misc")
-#set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.15), libconfig9, libdbus-1-3 (>= 1.1.1), libgl1-mesa-glx | libgl1 | libgl1-nvidia-glx | libgl1-fglrx-glx, libpcre3 (>= 8.10), libx11-6, libxcomposite1 (>= 1:0.3-1), libxdamage1 (>= 1:1.1), libxext6, libxfixes3, libxrandr2 (>= 4.3), libxrender1, libxinerama1")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libopencv-highgui2.4-deb0, libopencv-imgproc2.4-deb0, libopencv-core2.4-deb0, libqt5widgets5, libqt5network5, libqt5webkit5")
 
 include(CPack)
