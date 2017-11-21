@@ -11,9 +11,9 @@ face_recog_api::face_recog_api(QObject * parent):
         QObject(parent),
         config{fetch_config()}
 {
-    embedding_url = config.embedding_host_url;
+    embedding_url = config.embedding_service_url;
     embedding_url.setPath("/embed");
-    tracking_url = config.tracking_host_url;
+    tracking_url = config.tracking_api_url;
     tracking_url.setPath("/track");
 }
 

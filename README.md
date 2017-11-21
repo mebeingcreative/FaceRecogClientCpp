@@ -26,6 +26,24 @@ apt-get install libopencv-dev, qtbase5-dev, libqt5webkit5-dev, libopenblas-dev, 
 dpkg -i face-recog-client.deb
 ```
 
+### Configure & Run
+
+The embedding service **see Face Recog Python Services** must run and the tracking service **see Face Recog Server**
+must be available.
+
+The `/usr/local/etc/face-recog-config.ini` config file needs to be updated:
+
+* *embedding_service_url* **= "http://localhost:5001/"**
+  * Preferably on the same machine for better performance and network delay.
+* *tracking_api_url* **= "https://face.otep.ch/"**
+  * The single endpoint for all camera instances to send camera images and embeddings to.
+* *location_name*  **= "cam2"**
+  * Should be unique across all camera instances.
+* *tracking_view_url* **= "https://face.otep.ch/locations/$location_name/current"**
+  * Website with recognized faces. Should be the same server that handles the tracking api requests.
+* *predictor_path* **= "${FACE_RECOG_LANDMARK_PATH}"**
+  * Landmark file with the predictor shapes for facial detection.
+
 ## Architecture
 
 ![Diagram](https://github.com/viruch/FaceRecogClientCpp/raw/master/figures/face_recog_full.png "Architecture")

@@ -1,6 +1,6 @@
 ; Default configurations for the FaceRecogClient
-embedding_host_url = "http://localhost:5001/"
-tracking_host_url = "https://face.otep.ch/"
+embedding_service_url = "http://localhost:5001/"
+tracking_api_url = "https://face.otep.ch/"
 location_name = "cam2"
 tracking_view_url = "https://face.otep.ch/locations/$location_name/current"
 predictor_path = "${FACE_RECOG_LANDMARK_PATH}"
