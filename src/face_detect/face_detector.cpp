@@ -7,22 +7,6 @@
 #include "face_detector.h"
 #include "face_recog_config.h"
 
-inline cv::Rect transform_to_rect(cv::Mat const & mat, dlib::rectangle const & r) {
-    return {
-            cv::Point2i(
-                    std::max(0, static_cast<int>(r.left())),
-                    std::max(0, static_cast<int>(r.top()))),
-            cv::Point2i(
-                    std::min(mat.cols - 1, static_cast<int>(r.right() + 1)),
-                    std::min(mat.rows - 1 , static_cast<int>(r.bottom() + 1)))
-    };
-}
-
-inline QRect transform_to_qrect(dlib::rectangle const & r){
-    return {static_cast<int>(r.left()), static_cast<int>(r.top()),
-            static_cast<int>(r.width()), static_cast<int>(r.height())};
-}
-
 dlib::rectangle & grow_margin(dlib::rectangle & r) {
     auto margin = 44.0f / 94.0f * r.width();
     r.top() -= margin;
@@ -32,7 +16,9 @@ dlib::rectangle & grow_margin(dlib::rectangle & r) {
     return r;
 }
 
-face_detector::face_detector() {
+face_detector::face_detector(double scalingFactor):
+    scalingFactor{scalingFactor}
+{
     auto config = fetch_config();
     try {
         detector = dlib::get_frontal_face_detector();
@@ -66,4 +52,15 @@ std::vector<cv::Rect> face_detector::detect(cv::Mat & image){
     face_win.set_image(dlib::tile_images(face_chips));*/
 
     return rects;
+}
+
+cv::Rect face_detector::transform_to_rect(cv::Mat const & mat, dlib::rectangle const & r) {
+    return {
+            cv::Point2i(
+                    static_cast<int>(std::max(0l, r.left()) / scalingFactor),
+                    static_cast<int>(std::max(0l, r.top()) / scalingFactor)),
+            cv::Point2i(
+                    static_cast<int>(std::min(mat.cols - 1l, r.right() + 1) / scalingFactor),
+                    static_cast<int>(std::min(mat.rows - 1l, r.bottom()  + 1) / scalingFactor))
+    };
 }

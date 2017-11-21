@@ -5,42 +5,48 @@
 
 webcam_widget::webcam_widget(QWidget* parent) :
         QWidget{parent},
+        detectionScale{.5},
         capture{},
-        detector{},
+        detector{detectionScale},
         recog_service{}
 {
     if (!capture.isOpened() && !capture.open(0)) {
         throw std::runtime_error{"Failed to open camera! Check if camera is connected"};
     }
 
+    auto cameraWidth = capture.get(CV_CAP_PROP_FRAME_WIDTH);
+    auto cameraHeight = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
+
     cameraSize = QSize{
-            static_cast<int>(capture.get(CV_CAP_PROP_FRAME_WIDTH)),
-            static_cast<int>(capture.get(CV_CAP_PROP_FRAME_WIDTH))
+            static_cast<int>(cameraWidth),
+            static_cast<int>(cameraHeight)
     };
+    detectionSize = cv::Size{static_cast<int>(cameraWidth * detectionScale), static_cast<int>(cameraHeight * detectionScale)};
 
     timer = new QTimer{this};
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start(20);
+    timer->start(16);
 }
 
 webcam_widget::~webcam_widget() = default;
 
 void webcam_widget::paintEvent(QPaintEvent * event) {
-    capture.read(imageBGR);
-    cvtColor(imageBGR, imageRGBA, CV_BGR2RGBA);
+    capture.read(bgrImage);
+    cv::resize(bgrImage, resizedImage, detectionSize, 0, 0, cv::INTER_AREA);
+    cvtColor(bgrImage, rgbaImage, CV_BGR2RGBA);
 
     QPainter painter{this};
     painter.setPen(Qt::green);
     auto const origin = QPoint{0,0};
-    qimage = QImage{imageRGBA.data, imageRGBA.cols, imageRGBA.rows, QImage::Format_RGBA8888_Premultiplied};
+    qimage = QImage{rgbaImage.data, rgbaImage.cols, rgbaImage.rows, QImage::Format_RGBA8888_Premultiplied};
     painter.drawImage(origin, qimage);
 
-    auto const faces = detector.detect(imageBGR);
+    auto const faces = detector.detect(resizedImage);
     for (auto const & f: faces){
         painter.drawRect(f.x, f.y, f.width, f.height);
     }
     if (!faces.empty()) {
-        recog_service.recognize(imageBGR, faces);
+        recog_service.recognize(bgrImage, faces);
     }
 }
 
