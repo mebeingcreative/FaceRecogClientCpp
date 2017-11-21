@@ -21,9 +21,9 @@ public:
     void recognize(cv::Mat const & mat, std::vector<cv::Rect> const & faces);
 private:
     void grow_buffer(size_t size);
-    void process_reply(QNetworkReply * const reply);
-    void process_embedding_reply(QNetworkReply * const reply);
-    void process_track_reply(QNetworkReply * const reply);
+    void process_reply(QNetworkReply * reply);
+    void process_embedding_reply(QNetworkReply * reply);
+    void process_track_reply(QNetworkReply * reply);
 
     cv::Size const face_dimension;
     face_recog_api api;
