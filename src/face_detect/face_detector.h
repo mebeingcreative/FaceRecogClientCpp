@@ -8,19 +8,17 @@
 #include <dlib/opencv.h>
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing/shape_predictor.h>
-#include <QVector>
-#include <QRect>
 
 struct face_detector{
-    explicit face_detector(double scalingFactor = 0.25);
-    std::vector<cv::Rect> detect(cv::Mat & image);
+    explicit face_detector(double scalingFactor = 0.75);
+    std::vector<cv::Rect> detect(cv::Mat const & originalMat);
 private:
-    cv::Rect transform_to_rect(cv::Mat const & mat, dlib::rectangle const & r);
+    cv::Rect transform_to_rect(cv::Size const & maxSize, dlib::rectangle const & r) const;
 
     double const scalingFactor;
     dlib::frontal_face_detector detector{};
     dlib::shape_predictor pose_model{};
-    cv::Mat scaledImage;
+    cv::Mat scaledMat;
 };
 
 #endif //FACERECOGCLIENTCPP_FACE_DETECTOR_H

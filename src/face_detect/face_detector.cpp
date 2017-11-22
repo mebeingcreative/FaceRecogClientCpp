@@ -31,25 +31,20 @@ face_detector::face_detector(double scalingFactor):
     }
 }
 
-std::vector<cv::Rect> face_detector::detect(cv::Mat & image){
+std::vector<cv::Rect> face_detector::detect(cv::Mat const & originalMat){
+    auto originalSize = originalMat.size();
     auto detectionSize = cv::Size{
-            static_cast<int>(image.cols * scalingFactor),
-            static_cast<int>(image.rows * scalingFactor)};
-    cv::resize(image, scaledImage, detectionSize, 0, 0, cv::INTER_AREA);
-    // Turn OpenCV's Mat into something dlib can deal with.  Note that this just
-    // wraps the Mat object, it doesn't copy anything.  So cimg is only valid as
-    // long as temp is valid.  Also don't do anything to temp that would cause it
-    // to reallocate the memory which stores the image as that will make cimg
-    // contain dangling pointers.  This basically means you shouldn't modify temp
-    // while using cimg.
-    dlib::cv_image<dlib::bgr_pixel> cimg(scaledImage);
+            static_cast<int>(originalSize.width * scalingFactor),
+            static_cast<int>(originalSize.height * scalingFactor)};
+    cv::resize(originalMat, scaledMat, detectionSize, 0, 0, cv::INTER_AREA);
+    dlib::cv_image<dlib::bgr_pixel> cimg(scaledMat);
 
     auto shapes = std::vector<dlib::full_object_detection>{};
     auto rects = std::vector<cv::Rect>{};
     std::vector<dlib::rectangle> faces = detector(cimg);
     for (auto & face : faces) {
         shapes.push_back(pose_model(cimg, face));
-        rects.push_back(transform_to_rect(image, grow_margin(face)));
+        rects.push_back(transform_to_rect(originalSize, grow_margin(face)));
     }
 
     /*dlib::array<dlib::array2d<dlib::rgb_pixel>> face_chips;
@@ -59,13 +54,17 @@ std::vector<cv::Rect> face_detector::detect(cv::Mat & image){
     return rects;
 }
 
-cv::Rect face_detector::transform_to_rect(cv::Mat const & mat, dlib::rectangle const & r) {
-    return {
-            cv::Point2i(
-                    static_cast<int>(std::max(0l, r.left()) / scalingFactor),
-                    static_cast<int>(std::max(0l, r.top()) / scalingFactor)),
-            cv::Point2i(
-                    static_cast<int>(std::min(mat.cols - 1l, r.right() + 1) / scalingFactor),
-                    static_cast<int>(std::min(mat.rows - 1l, r.bottom()  + 1) / scalingFactor))
+cv::Rect face_detector::transform_to_rect(cv::Size const & maxSize, dlib::rectangle const & r) const {
+    auto matRect = cv::Rect(cv::Point(0, 0), cv::Point(maxSize.width - 1, maxSize.height -1));
+    auto rescaledRect = cv::Rect{
+            cv::Point(
+                    static_cast<int>(r.left() / scalingFactor),
+                    static_cast<int>(r.top() / scalingFactor)
+            ),
+            cv::Point(
+                    static_cast<int>((r.right() + 1) / scalingFactor),
+                    static_cast<int>((r.bottom()  + 1) / scalingFactor)
+            )
     };
+    return matRect & rescaledRect;
 }
