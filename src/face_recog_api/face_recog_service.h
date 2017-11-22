@@ -25,7 +25,7 @@ private:
     void process_embedding_reply(QNetworkReply * reply);
     void process_track_reply(QNetworkReply * reply);
 
-    cv::Size const face_dimension;
+    cv::Size const face_image_size;
     face_recog_api api;
     std::vector<cv::Mat> faces_buffer;
     std::vector<cv::Rect> faces_positions;

@@ -18,7 +18,7 @@ face_recog_service::face_recog_service(QObject *parent):
     QObject(parent),
     api{},
     faces_buffer{},
-    face_dimension{182, 182},
+    face_image_size{160, 160},
     state{service_state::ready}
 {
     grow_buffer(4);
@@ -34,7 +34,7 @@ void face_recog_service::recognize(cv::Mat const & mat, std::vector<cv::Rect> co
     auto n_of_faces = faces_positions.size();
     grow_buffer(n_of_faces);
     for (int i{0}; i < n_of_faces; ++i){
-        resize(mat(faces_positions[i]), faces_buffer[i], face_dimension);
+        resize(mat(faces_positions[i]), faces_buffer[i], face_image_size);
         convert_to_jpeg(faces_buffer[i], jpg_buffer[i]);
     }
     api.request_embedding(jpg_buffer, n_of_faces);
@@ -45,7 +45,7 @@ void face_recog_service::recognize(cv::Mat const & mat, std::vector<cv::Rect> co
 
 void face_recog_service::grow_buffer(size_t const size){
     while (faces_buffer.size() < size){
-        faces_buffer.emplace_back(face_dimension, CV_32SC3);
+        faces_buffer.emplace_back(face_image_size, CV_32SC3);
         jpg_buffer.emplace_back(8 * 1000);
     }
 }
