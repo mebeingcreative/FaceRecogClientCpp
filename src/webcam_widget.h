@@ -19,16 +19,13 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     QSize minimumSizeHint() const override;
 private:
-    double detectionScale;
     cv::VideoCapture capture;
     face_detector detector;
     cv::Mat bgrImage;
-    cv::Mat resizedImage;
     cv::Mat rgbaImage;
     QImage qimage;
     QTimer* timer;
     QSize cameraSize;
-    cv::Size detectionSize;
     face_recog_service recog_service;
 };
 

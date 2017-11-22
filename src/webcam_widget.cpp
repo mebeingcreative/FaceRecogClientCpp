@@ -5,9 +5,8 @@
 
 webcam_widget::webcam_widget(QWidget* parent) :
         QWidget{parent},
-        detectionScale{.5},
         capture{},
-        detector{detectionScale},
+        detector{},
         recog_service{}
 {
     if (!capture.isOpened() && !capture.open(0)) {
@@ -21,7 +20,6 @@ webcam_widget::webcam_widget(QWidget* parent) :
             static_cast<int>(cameraWidth),
             static_cast<int>(cameraHeight)
     };
-    detectionSize = cv::Size{static_cast<int>(cameraWidth * detectionScale), static_cast<int>(cameraHeight * detectionScale)};
 
     timer = new QTimer{this};
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -32,7 +30,6 @@ webcam_widget::~webcam_widget() = default;
 
 void webcam_widget::paintEvent(QPaintEvent * event) {
     capture.read(bgrImage);
-    cv::resize(bgrImage, resizedImage, detectionSize, 0, 0, cv::INTER_AREA);
     cvtColor(bgrImage, rgbaImage, CV_BGR2RGBA);
 
     QPainter painter{this};
@@ -41,7 +38,7 @@ void webcam_widget::paintEvent(QPaintEvent * event) {
     qimage = QImage{rgbaImage.data, rgbaImage.cols, rgbaImage.rows, QImage::Format_RGBA8888_Premultiplied};
     painter.drawImage(origin, qimage);
 
-    auto const faces = detector.detect(resizedImage);
+    auto const faces = detector.detect(bgrImage);
     for (auto const & f: faces){
         painter.drawRect(f.x, f.y, f.width, f.height);
     }

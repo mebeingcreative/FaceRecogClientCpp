@@ -3,6 +3,7 @@
 //
 
 #include <QDebug>
+#include <opencv2/opencv.hpp>
 
 #include "face_detector.h"
 #include "face_recog_config.h"
@@ -31,13 +32,17 @@ face_detector::face_detector(double scalingFactor):
 }
 
 std::vector<cv::Rect> face_detector::detect(cv::Mat & image){
+    auto detectionSize = cv::Size{
+            static_cast<int>(image.cols * scalingFactor),
+            static_cast<int>(image.rows * scalingFactor)};
+    cv::resize(image, scaledImage, detectionSize, 0, 0, cv::INTER_AREA);
     // Turn OpenCV's Mat into something dlib can deal with.  Note that this just
     // wraps the Mat object, it doesn't copy anything.  So cimg is only valid as
     // long as temp is valid.  Also don't do anything to temp that would cause it
     // to reallocate the memory which stores the image as that will make cimg
     // contain dangling pointers.  This basically means you shouldn't modify temp
     // while using cimg.
-    dlib::cv_image<dlib::bgr_pixel> cimg(image);
+    dlib::cv_image<dlib::bgr_pixel> cimg(scaledImage);
 
     auto shapes = std::vector<dlib::full_object_detection>{};
     auto rects = std::vector<cv::Rect>{};
