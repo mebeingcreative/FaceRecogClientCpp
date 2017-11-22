@@ -13,7 +13,7 @@ class face_recog_demo:
 Q_OBJECT
 
 public:
-    face_recog_demo(QWidget* parent = 0);
+    face_recog_demo(QWidget* parent = nullptr);
     ~face_recog_demo() override;
 
 private:
