@@ -8,6 +8,7 @@
 
 #include "face_detect/face_detector.h"
 #include "face_recog_api/face_recog_service.h"
+#include "webcam.h"
 
 class webcam_widget :
         public QWidget {
@@ -19,13 +20,11 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     QSize minimumSizeHint() const override;
 private:
-    cv::VideoCapture capture;
+    webcam camera;
     face_detector detector;
     cv::Mat bgrImage;
     cv::Mat rgbaImage;
-    QImage qimage;
     QTimer* timer;
-    QSize cameraSize;
     face_recog_service recog_service;
 };
 

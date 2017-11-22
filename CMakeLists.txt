@@ -40,6 +40,7 @@ add_executable(face-recog-client
         src/face_recog_api/face_recog_service.cpp
         src/face_detect/face_detector.cpp
         src/face_recog_demo.cpp
+        src/webcam.cpp
         src/webcam_widget.cpp
         )
 
