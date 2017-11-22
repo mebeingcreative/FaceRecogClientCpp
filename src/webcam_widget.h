@@ -14,18 +14,16 @@ class webcam_widget :
         public QWidget {
 Q_OBJECT
 public:
-    explicit webcam_widget(QWidget* parent = 0);
+    explicit webcam_widget(QWidget* parent = nullptr);
     ~webcam_widget() override;
 protected:
     void paintEvent(QPaintEvent *event) override;
     QSize minimumSizeHint() const override;
 private:
+    QImage wrap_mat(cv::Mat const & image);
     webcam camera;
-    face_detector detector;
-    cv::Mat bgrImage;
     cv::Mat rgbaImage;
     QTimer* timer;
-    face_recog_service recog_service;
 };
 
 #endif // CQTOPENCVVIEWERGL_H

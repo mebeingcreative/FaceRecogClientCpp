@@ -5,10 +5,10 @@
 #include "webcam.h"
 
 webcam::webcam():
-    capture{},
-    detector{},
-    recog_service{},
-    size{}
+        size{},
+        capture{},
+        detector{},
+        recog_service{}
 {
     if (!capture.isOpened() && !capture.open(0)) {
         throw std::runtime_error{"Failed to open camera! Check if camera is connected"};
@@ -18,10 +18,10 @@ webcam::webcam():
     size.height = static_cast<int>(capture.get(CV_CAP_PROP_FRAME_HEIGHT));
 }
 
-void webcam::read(cv::Mat & mat){
-    capture.read(mat);
-}
-
-void webcam::process_frame(){
-
+void webcam::update(){
+    capture.read(image);
+    faces = detector.detect(image);
+    if (!faces.empty()) {
+        recog_service.recognize(image, faces);
+    }
 }
