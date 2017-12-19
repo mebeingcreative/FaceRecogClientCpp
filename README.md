@@ -46,7 +46,7 @@ The `/usr/local/etc/face-recog-config.ini` config file needs to be updated:
 
 ## Documentation
 
-![Wiki](https://github.com/firemind/facial-recognition-sa-2017/wiki)
+[Wiki](https://github.com/firemind/facial-recognition-sa-2017/wiki)
 
 ## Acknowledgements
 
