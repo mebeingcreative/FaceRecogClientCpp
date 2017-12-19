@@ -14,8 +14,8 @@ Tested on Ubuntu 16.04 and 17.04
 
 ### Build from Source
 
-Please see [FaceRecogClientCppDocker]() for an semi automated build enviroment.
-
+Please see [FaceRecogClientCppDocker](https://github.com/viruch/FaceRecogClientCppDocker)
+for an automated build enviroment.
 
 ### Install the deb
 
@@ -28,8 +28,8 @@ dpkg -i face-recog-client.deb
 
 ### Configure & Run
 
-The embedding service **see Face Recog Python Services** must run and the tracking service **see Face Recog Server**
-must be available.
+The embedding service [Face Recog Python Services](https://github.com/firemind/face-recog-server-python) 
+must run and the tracking service [Face Recog Server](https://github.com/firemind/face-recog-server) must be available.
 
 The `/usr/local/etc/face-recog-config.ini` config file needs to be updated:
 
@@ -43,11 +43,6 @@ The `/usr/local/etc/face-recog-config.ini` config file needs to be updated:
   * Website with recognized faces. Should be the same server that handles the tracking api requests.
 * *predictor_path* **= "${FACE_RECOG_LANDMARK_PATH}"**
   * Landmark file with the predictor shapes for facial detection.
-
-## Architecture
-
-![Diagram](https://github.com/viruch/FaceRecogClientCpp/raw/master/figures/face_recog_full.png "Architecture")
-
 
 ## Documentation
 
