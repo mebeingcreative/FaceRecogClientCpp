@@ -70,13 +70,11 @@ void face_recog_service::process_reply(QNetworkReply * const reply){
 }
 
 void face_recog_service::process_embedding_reply(QNetworkReply * const reply){
-    auto embedding = reply->readAll();
-    qDebug() << embedding;
+    auto const embedding = reply->readAll();
     api.track(image, embedding, faces_positions);
     state = service_state::requesting_track;
 }
 
 void face_recog_service::process_track_reply(QNetworkReply * const reply){
-    qDebug() << reply->readAll();
     state = service_state::ready;
 }

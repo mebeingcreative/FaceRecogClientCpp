@@ -9,7 +9,7 @@
 #include "face_recog_config.h"
 
 dlib::rectangle & grow_margin(dlib::rectangle & r) {
-    auto margin = 44.0f / 94.0f * r.width();
+    auto margin = 32.0f / (160.0f/2.0f) * r.width();
     r.top() -= margin;
     r.left() -= margin;
     r.right() += margin;
